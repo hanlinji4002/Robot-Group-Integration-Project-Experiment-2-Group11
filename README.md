@@ -73,18 +73,14 @@
 │           ├── sim.launch.py           一键启动流程 1
 │           └── sim2.launch.py          一键启动流程 2
 │
-└── 02-real-robot/                      真机阶段
+└── 02-real-robot/                      真机阶段（Mac 网线直连臂内树莓派）
     ├── README.md                       目录说明
-    ├── scripts/                        在臂内树莓派上运行的直连脚本
-    │   ├── arm_common.py               公共库：连接串口、读角度坐标、同步移动并报残差
-    │   ├── armtest2.py                 综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
-    │   ├── go_zero.py                  六关节回零并判定残差
-    │   ├── reach_forward.py            从零位往前探出
-    │   └── demo_seq.py                 连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
-    └── ros/                            ROS 2 侧真机文件，跑在 Jetson 上（尚未联调）
-        ├── mecharm_real_driver.py      真机驱动后端
-        ├── real_grasp.launch.py        真机启动文件
-        └── real_grasp_params.yaml      真机参数：示教出的 A/B 点等
+    └── scripts/                        在臂内树莓派上运行的直连脚本
+        ├── arm_common.py               公共库：连接串口、读角度坐标、同步移动并报残差
+        ├── armtest2.py                 综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
+        ├── go_zero.py                  六关节回零并判定残差
+        ├── reach_forward.py            从零位往前探出
+        └── demo_seq.py                 连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
 ```
 
 验收数据（results/）未上传。
