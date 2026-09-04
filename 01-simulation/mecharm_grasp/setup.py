@@ -28,6 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'grasp_task = mecharm_grasp.ros_node:main',
+            'grasp_task2 = mecharm_grasp.ros_node2:main',
             # 标定脚本在 config/ 下，source 工作区后 python3 config/calib_*.py 直接运行
         ],
     },

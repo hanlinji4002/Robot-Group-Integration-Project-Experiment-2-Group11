@@ -43,33 +43,64 @@
 ```
 .
 ├── README.md
-└── 01-simulation/                      仿真阶段
-    ├── README.md
-    └── mecharm_grasp/                  ROS 2 功能包，整个目录拷进 ros2_ws/src 即可编译
-        ├── package.xml                 包的名称、版本、依赖声明
-        ├── setup.py                    安装规则：模块、数据文件、可执行入口
-        ├── setup.cfg                   可执行文件安装位置
-        ├── resource/mecharm_grasp      ament 索引标记文件
-        │
-        ├── model/                      【模型构建】
-        │   ├── arm_model.xacro         机械臂模型
-        │   └── theWorld.sdf            仿真世界
-        │
-        ├── config/                     【参数设置】
-        │   ├── grasp.yaml              抓取参数
-        │   ├── controllers.yaml        ros2_control 控制器配置
-        │   ├── GripperCalc.py          标定工具中心
-        │   └── Gripper_touch.py        标定夹爪闭合角
-        │
-        ├── mecharm_grasp/              【ROS 任务设置】
-        │   ├── __init__.py             Python 包标记
-        │   └── ros_node.py             抓取任务节点
-        │
-        └── launch/                     【仿真启动文件】
-            └── sim.launch.py           一键启动整个仿真系统
+├── 01-simulation/                      仿真阶段
+│   ├── README.md                       目录说明与两套抓取流程对照
+│   ├── 使用说明书.md                    从零开始的操作步骤，不懂 ROS 也能照着跑
+│   └── mecharm_grasp/                  ROS 2 功能包，整个目录拷进 ros2_ws/src 即可编译
+│       ├── package.xml                 包的名称、版本、依赖声明
+│       ├── setup.py                    安装规则：模块、数据文件、可执行入口
+│       ├── setup.cfg                   可执行文件安装位置
+│       ├── resource/mecharm_grasp      ament 索引标记文件
+│       │
+│       ├── model/                      【模型构建】
+│       │   ├── arm_model.xacro         机械臂模型
+│       │   ├── theWorld.sdf            仿真世界（流程 1）
+│       │   └── theWorld2.sdf           仿真世界（流程 2）
+│       │
+│       ├── config/                     【参数设置】
+│       │   ├── grasp.yaml              抓取参数（流程 1）
+│       │   ├── grasp2.yaml             抓取参数（流程 2）
+│       │   ├── controllers.yaml        ros2_control 控制器配置
+│       │   ├── GripperCalc.py          标定工具中心
+│       │   └── Gripper_touch.py        标定夹爪闭合角
+│       │
+│       ├── mecharm_grasp/              【ROS 任务设置】
+│       │   ├── __init__.py             Python 包标记
+│       │   ├── ros_node.py             抓取任务节点（流程 1）
+│       │   └── ros_node2.py            抓取任务节点（流程 2）
+│       │
+│       └── launch/                     【仿真启动文件】
+│           ├── sim.launch.py           一键启动流程 1
+│           └── sim2.launch.py          一键启动流程 2
+│
+└── 02-real-robot/                      真机阶段
+    ├── README.md                       目录说明
+    ├── scripts/                        在臂内树莓派上运行的直连脚本
+    │   ├── arm_common.py               公共库：连接串口、读角度坐标、同步移动并报残差
+    │   ├── armtest2.py                 综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
+    │   ├── go_zero.py                  六关节回零并判定残差
+    │   ├── reach_forward.py            从零位往前探出
+    │   └── demo_seq.py                 连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
+    └── ros/                            ROS 2 侧真机文件，跑在 Jetson 上（尚未联调）
+        ├── mecharm_real_driver.py      真机驱动后端
+        ├── real_grasp.launch.py        真机启动文件
+        └── real_grasp_params.yaml      真机参数：示教出的 A/B 点等
 ```
 
-真机阶段的代码尚未上传。
+验收数据（results/）未上传。
+
+## 两套抓取流程
+
+仿真部分做了两套互不干扰的抓取流程，代码、参数、世界、启动文件各有两份。
+
+| | 流程 1 | 流程 2 |
+|---|---|---|
+| 取物点 A | [0.12, 0.08] | [0.137, 0.029] |
+| 放置点 B | [0.12, -0.08] | [0.052, -0.130] |
+| 工作半径 | 0.144 m | 0.140 m |
+| J1 转动幅度 | 67° | 80° |
+
+两套均实测连续抓取 5 次全部成功。启动命令把 `sim` 换成 `sim2` 即可切换。
 
 ## 代码模块化说明
 
