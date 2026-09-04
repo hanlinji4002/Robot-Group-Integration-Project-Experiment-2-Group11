@@ -31,28 +31,70 @@
 5. 用**一个 Launch 文件**启动仿真、控制和状态节点。
 6. 对不可达目标、无逆解、关节超限等情况进行判断并安全停止。
 
-### 验收标准
-
-- [ ] 一个 Launch 文件即可启动完整仿真系统
-- [ ] 连续抓取 5 次，至少成功 4 次
-- [ ] 不与桌面、目标物或自身发生明显碰撞，不超过关节限位
-- [ ] 遇到不可达目标时停止任务，并输出明确的错误信息
-- [ ] 能保存机械臂轨迹、执行结果和错误日志
-
 ## 阶段二：真机验证
 
 ### 任务
 
-1.在桌面上标记固定取物点和固定放置区域，设置安全高度。
+1. 在桌面上标记固定取物点和固定放置区域，设置安全高度。
 2. 使用与仿真阶段**相同的 ROS 2 控制接口**完成回零、抓取、放置和返回。
-
 
 ## 仓库结构
 
 ```
 .
 ├── README.md
-├── 01-simulation/      仿真阶段：模型 (model/)、参数 (params/)、任务节点 (task/)、
-│                       启动文件 (launch/)、验收数据 (results/)
-└── 02-real-robot/      真机阶段：通信链路交接、故障报告、代码索引
+└── 01-simulation/                      仿真阶段
+    ├── README.md
+    └── mecharm_grasp/                  ROS 2 功能包，整个目录拷进 ros2_ws/src 即可编译
+        ├── package.xml                 包的名称、版本、依赖声明
+        ├── setup.py                    安装规则：模块、数据文件、可执行入口
+        ├── setup.cfg                   可执行文件安装位置
+        ├── resource/mecharm_grasp      ament 索引标记文件
+        │
+        ├── model/                      【模型构建】
+        │   ├── arm_model.xacro         机械臂模型
+        │   └── theWorld.sdf            仿真世界
+        │
+        ├── config/                     【参数设置】
+        │   ├── grasp.yaml              抓取参数
+        │   ├── controllers.yaml        ros2_control 控制器配置
+        │   ├── GripperCalc.py          标定工具中心
+        │   └── Gripper_touch.py        标定夹爪闭合角
+        │
+        ├── mecharm_grasp/              【ROS 任务设置】
+        │   ├── __init__.py             Python 包标记
+        │   └── ros_node.py             抓取任务节点
+        │
+        └── launch/                     【仿真启动文件】
+            └── sim.launch.py           一键启动整个仿真系统
 ```
+
+真机阶段的代码尚未上传。
+
+## 代码模块化说明
+
+仿真代码按职责拆成四个模块，互不干扰，改一处不会牵动其他部分。
+
+**模型构建（`model/`）** 描述"机械臂长什么样、世界里有什么"。`arm_model.xacro` 是 mechArm 270 的模型，取自厂商公开的官方描述包，我们在其基础上补全了惯量、关节限位，并把夹爪的联动关节接进 ros2_control。`theWorld.sdf` 是 Gazebo 里的仿真世界，包含桌面、25 mm 的目标方块以及物理和里程计插件。
+
+**参数设置（`config/`）** 控制机械臂"抓多高、抓多紧、抓几次"。`grasp.yaml` 里是取放点、安全高度、夹爪开合角、抓取次数等全部可调数值，改这个文件不用碰任何代码。`controllers.yaml` 是 ros2_control 的控制器配置，规定手臂和夹爪由哪个控制器驱动、控制频率多少、到位判定多严。另外两个是标定脚本：`Gripper_touch.py` 让手指逐步合拢，测出方块第一次被碰动的角度，用来确定夹爪该合到多少；`GripperCalc.py` 读取夹爪指尖和方块的真实位姿，算出虎口中心的偏差，用来确定工具中心的位置。这两个数值靠几何推算不准，必须实测，标定完写回 `grasp.yaml` 即可，平时不需要重复运行。
+
+**ROS 任务设置（`mecharm_grasp/`）** 是 ROS 2 规定必须存在的 Python 模块目录，目录名必须与包名一致，节点代码只能放在这里，否则 ROS 找不到程序入口。`ros_node.py` 是抓取任务节点，用数值逆运动学求解关节角，以状态机的形式依次执行回零、移动、下降、夹取、抬升、放置等动作，同时负责不可达判定和日志输出。
+
+**仿真启动文件（`launch/`）** 把上面三部分串起来。`sim.launch.py` 依次拉起 Gazebo 世界、生成机器人、启动控制器、发布机器人状态，最后启动任务节点，满足"一个 Launch 文件启动完整系统"的要求。
+
+## 想改点什么？看这里
+
+| 你想改的东西 | 改哪个文件 | 改什么 |
+|---|---|---|
+| **机械臂的动作流程**：调整动作顺序、增删动作、改变抓取逻辑或不可达的处理方式 | `mecharm_grasp/ros_node.py` | 状态机部分 |
+| **抓取高度** | `config/grasp.yaml` | `safe_height` 是取放过程中抬升的高度；`point_a`、`point_b` 的第三个数是取物点和放置点本身的高度 |
+| **夹爪角度** | `config/grasp.yaml` | `gripper_open` 张开角、`gripper_close` 闭合角。换目标物尺寸后建议重跑 `Gripper_touch.py` 重新标定 |
+| **取物点和放置点的位置** | `config/grasp.yaml` | `point_a`、`point_b` 的前两个数。注意 mechArm 270 臂展有限，垂直抓取时可达半径约 0.13–0.15 m，放太远会无解 |
+| **动作快慢** | `config/grasp.yaml` | `move_duration` 单段移动时长、`grip_duration` 夹爪动作时长 |
+| **连续抓取次数** | `config/grasp.yaml` | `cycles` |
+| **工具中心位置**（夹爪换了之后） | `config/grasp.yaml` | `tool_tip_offset`，用 `GripperCalc.py` 标定后填入 |
+| **控制频率、到位判定的松紧** | `config/controllers.yaml` | `update_rate`、各关节的 `goal` 容差 |
+| **机械臂本体或夹爪的结构** | `model/arm_model.xacro` | 连杆、关节限位、惯量、碰撞体 |
+| **桌面、目标方块的位置或尺寸** | `model/theWorld.sdf` | 注意方块的初始位姿必须与 `grasp.yaml` 的 `point_a` 保持一致 |
+| **启动流程**：增删启动的节点、改默认参数 | `launch/sim.launch.py` | |
