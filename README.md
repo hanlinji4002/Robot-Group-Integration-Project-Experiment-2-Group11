@@ -44,8 +44,7 @@
 .
 ├── README.md
 ├── 01-simulation/                      仿真阶段
-│   ├── README.md                       目录说明与两套抓取流程对照
-│   ├── 使用说明书.md                    从零开始的操作步骤，不懂 ROS 也能照着跑
+│   ├── README.md                       文件结构、使用说明、两套流程对照、常见问题
 │   └── mecharm_grasp/                  ROS 2 功能包，整个目录拷进 ros2_ws/src 即可编译
 │       ├── package.xml                 包的名称、版本、依赖声明
 │       ├── setup.py                    安装规则：模块、数据文件、可执行入口
@@ -74,7 +73,7 @@
 │           └── sim2.launch.py          一键启动流程 2
 │
 └── 02-real-robot/                      真机阶段（Mac 网线直连臂内树莓派）
-    ├── README.md                       目录说明
+    ├── README.md                       文件结构、Mac 操作步骤、常见问题
     └── scripts/                        在臂内树莓派上运行的直连脚本
         ├── arm_common.py               公共库：连接串口、读角度坐标、同步移动并报残差
         ├── armtest2.py                 综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
