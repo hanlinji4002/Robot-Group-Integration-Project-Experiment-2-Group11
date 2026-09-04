@@ -2,7 +2,7 @@
 """夹爪触碰角标定探针（仿真专用）。
 
 用法：先 `ros2 launch mecharm_grasp sim.launch.py gui:=false task:=false`
-再 `python3 config/calib_touch.py`（需先 source 工作区）。
+再 `python3 config/Gripper_touch.py`（需先 source 工作区）。
 
 原理：手臂降到取物点，手指从全开逐步合拢（0.02 rad/步），
 用物体里程计检测方块首次被碰动的角度 θ_touch。
@@ -23,7 +23,7 @@ from control_msgs.action import FollowJointTrajectory
 from nav_msgs.msg import Odometry
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
-from mecharm_grasp.task_node import ARM_JOINTS, GRIPPER_JOINT, solve_ik
+from mecharm_grasp.ros_node import ARM_JOINTS, GRIPPER_JOINT, solve_ik
 
 POINT_A_LOCAL = np.array([0.12, 0.08, 0.0135 + 0.002])  # 与 config/grasp.yaml 一致
 TOOL_OFF = 0.063
@@ -31,7 +31,7 @@ TOOL_OFF = 0.063
 
 class Probe(Node):
     def __init__(self):
-        super().__init__('calib_touch')
+        super().__init__('gripper_touch')
         cb = ReentrantCallbackGroup()
         self.arm = ActionClient(self, FollowJointTrajectory,
                                 '/arm_controller/follow_joint_trajectory', callback_group=cb)

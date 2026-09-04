@@ -10,15 +10,15 @@
 │   ├── resource/mecharm_grasp      ament 索引标记文件
 │   ├── mecharm_grasp/
 │   │   ├── __init__.py             Python 包标记
-│   │   └── task_node.py            抓取任务节点：数值 IK 状态机，A 点取物、B 点放置，不可达判定与日志输出
+│   │   └── ros_node.py             抓取任务节点：数值 IK 状态机，A 点取物、B 点放置，不可达判定与日志输出
 │   ├── model/
-│   │   ├── arm.urdf.xacro          机械臂模型：惯量、关节限位、夹爪 mimic 关节、碰撞体
-│   │   └── world.sdf               仿真世界：桌面、25 mm 目标方块、物理与里程计插件
+│   │   ├── arm_model.xacro         机械臂模型：惯量、关节限位、夹爪 mimic 关节、碰撞体
+│   │   └── theWorld.sdf            仿真世界：桌面、25 mm 目标方块、物理与里程计插件
 │   ├── config/
 │   │   ├── grasp.yaml              抓取参数：A/B 点、安全高度、工具偏移、夹爪开合角、抓取次数、日志目录
 │   │   ├── controllers.yaml        ros2_control 控制器配置：手臂、夹爪、关节状态广播
-│   │   ├── calib_jaw.py            夹爪开合量标定：测 25 mm 方块的有效夹持角
-│   │   └── calib_touch.py          接触位置标定：测指垫接触点，定工具偏移
+│   │   ├── GripperCalc.py          标定工具中心：读夹爪指尖与方块的真实位姿，算出虎口中心的偏差，用来定 grasp.yaml 的 tool_tip_offset
+│   │   └── Gripper_touch.py        标定夹爪闭合角：手指逐步合拢，测出方块首次被碰动的角度，用来定 grasp.yaml 的 gripper_close
 │   └── launch/
 │       └── sim.launch.py           一键启动：世界、机器人、控制器、状态发布、任务节点
 └── results/                        验收数据

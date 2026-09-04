@@ -20,8 +20,8 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     pkg = get_package_share_directory('mecharm_grasp')
-    world = os.path.join(pkg, 'worlds', 'world.sdf')
-    xacro_file = os.path.join(pkg, 'urdf', 'arm.urdf.xacro')
+    world = os.path.join(pkg, 'worlds', 'theWorld.sdf')
+    xacro_file = os.path.join(pkg, 'urdf', 'arm_model.xacro')
     controllers = os.path.join(pkg, 'config', 'controllers.yaml')
     params = os.path.join(pkg, 'config', 'grasp.yaml')
 

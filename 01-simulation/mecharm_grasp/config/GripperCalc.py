@@ -20,7 +20,7 @@ from rclpy.executors import MultiThreadedExecutor
 from control_msgs.action import FollowJointTrajectory
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
-from mecharm_grasp.task_node import (ARM_JOINTS, GRIPPER_JOINT,
+from mecharm_grasp.ros_node import (ARM_JOINTS, GRIPPER_JOINT,
                                            solve_ik, align_jaw, fk)
 
 BASE = np.array([0.0, 0.0, 0.75])
@@ -43,7 +43,7 @@ def get_poses():
 
 class Measure(Node):
     def __init__(self):
-        super().__init__('calib_jaw')
+        super().__init__('gripper_calc')
         cb = ReentrantCallbackGroup()
         self.arm = ActionClient(self, FollowJointTrajectory,
                                 '/arm_controller/follow_joint_trajectory', callback_group=cb)
