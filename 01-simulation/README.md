@@ -24,16 +24,19 @@
 │   ├── model/
 │   │   ├── arm_model.xacro         机械臂模型：惯量、关节限位、夹爪 mimic 关节、碰撞体
 │   │   ├── theWorld.sdf            仿真世界（流程 1）：桌面、25 mm 目标方块、物理与里程计插件
-│   │   └── theWorld2.sdf           仿真世界（流程 2）：方块初始位置改到 A2 点
+│   │   ├── theWorld2.sdf           仿真世界（流程 2）：方块初始位置改到 A2 点
+│   │   └── theWorld3.sdf           仿真世界（流程 3）：方块初始位置改到 A3 点
 │   ├── config/
 │   │   ├── grasp.yaml              抓取参数（流程 1）：A/B 点、安全高度、工具偏移、夹爪开合角、抓取次数、日志目录
 │   │   ├── grasp2.yaml             抓取参数（流程 2）：A2/B2 点，其余同上
-│   │   ├── controllers.yaml        ros2_control 控制器配置：手臂、夹爪、关节状态广播（两套流程共用）
+│   │   ├── grasp3.yaml             抓取参数（流程 3）：反向 A3/B3 点与独立日志目录
+│   │   ├── controllers.yaml        ros2_control 控制器配置：手臂、夹爪、关节状态广播（三套流程共用）
 │   │   ├── GripperCalc.py          标定工具中心：读夹爪指尖与方块的真实位姿，算出虎口中心偏差，用来定 tool_tip_offset
 │   │   └── Gripper_touch.py        标定夹爪闭合角：手指逐步合拢，测出方块首次被碰动的角度，用来定 gripper_close
 │   └── launch/
 │       ├── sim.launch.py           一键启动流程 1：世界、机器人、控制器、状态发布、任务节点
-│       └── sim2.launch.py          一键启动流程 2
+│       ├── sim2.launch.py          一键启动流程 2
+│       └── sim3.launch.py          一键启动流程 3（复用流程 1 控制算法）
 └── results/                        验收数据（未上传到仓库）
     ├── README.md                   验收记录说明
     ├── results.csv                 每次抓取的结果与落点偏差
@@ -132,28 +135,42 @@ for p in "ig[n] gazebo" "gras[p]_task" "robot_stat[e]_publisher" "parameter_brid
 
 ---
 
-## 三、两套抓取流程
+## 三、三套抓取流程
 
-程序里装了两套抓取动作，方块位置不同，互不影响。
+程序里装了三套抓取动作，方块位置和日志目录不同。
 
-| | 流程 1 | 流程 2 |
-|---|---|---|
-| 取物点 A | [0.12, 0.08] | [0.137, 0.029] |
-| 放置点 B | [0.12, -0.08] | [0.052, -0.130] |
-| 工作半径 | 0.144 m | 0.140 m |
-| J1 转动幅度 | 67° | 80° |
-| A 点偏离正前方 | 34° | 12° |
-| 节点名 | grasp_task | grasp_task2 |
-| 世界名 | grasp_world | grasp_world2 |
-| 日志目录 | ~/mecharm_ws/grasp_logs | ~/grasp_logs2 |
+| | 流程 1 | 流程 2 | 流程 3 |
+|---|---|---|---|
+| 取物点 A | [0.12, 0.08] | [0.137, 0.029] | [0.075, -0.115] |
+| 放置点 B | [0.12, -0.08] | [0.052, -0.130] | [0.125, 0.060] |
+| 工作半径 | 0.144 m | 0.140 m | 0.137–0.139 m |
+| J1 转动幅度 | 67° | 80° | 82.5°（反向） |
+| A 点偏离正前方 | +34° | +12° | -56.9° |
+| 节点名 | grasp_task | grasp_task2 | grasp_task3 |
+| 世界名 | grasp_world | grasp_world2 | grasp_world3 |
+| 日志目录 | ~/mecharm_ws/grasp_logs | ~/grasp_logs2 | ~/grasp_logs3 |
+| 验证状态 | Jetson 5/5 | Jetson 5/5 | IK 静态检查通过，待 Jetson 实跑 |
 
 流程 2 的取物点更靠前、更接近正前方但不正对，J1 转动幅度更大，工作半径略小因而逆解余量更足。
-两套都实测 5 次抓取全部成功。
+流程 1/2 已实测 5 次抓取全部成功。流程 3 的全部路径点已通过同一数值 IK
+静态检查，完整成功率需要在 Jetson 上运行后记录，不能用静态检查代替。
 
 跑流程 2 就把命令里的 `sim` 换成 `sim2`：
 
 ```
 ros2 launch mecharm_grasp sim2.launch.py gui:=false
+```
+
+运行反向对角搬运流程 3：
+
+```
+ros2 launch mecharm_grasp sim3.launch.py gui:=false
+```
+
+流程 3 的成绩单：
+
+```
+cat ~/grasp_logs3/summary.txt
 ```
 
 看流程 2 的成绩单，路径也不一样：
@@ -162,7 +179,7 @@ ros2 launch mecharm_grasp sim2.launch.py gui:=false
 cat ~/grasp_logs2/summary.txt
 ```
 
-⚠️ **两套不能同时跑**，Gazebo 和控制器话题会互相打架。跑完一套、清理干净，再跑另一套。
+⚠️ **三套不能同时跑**，Gazebo 和控制器话题会互相打架。跑完一套、清理干净，再跑另一套。
 
 ---
 
@@ -216,6 +233,7 @@ cd ~/Desktop/exp2_sim_ws && source /opt/ros/humble/setup.bash && source ~/mechar
 | 找工具箱（每次都要） | `source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && source ~/Desktop/exp2_sim_ws/install/setup.bash` |
 | 跑流程 1，不看画面 | `ros2 launch mecharm_grasp sim.launch.py gui:=false` |
 | 跑流程 2，不看画面 | `ros2 launch mecharm_grasp sim2.launch.py gui:=false` |
+| 跑流程 3，不看画面 | `ros2 launch mecharm_grasp sim3.launch.py gui:=false` |
 | 看画面（先输这个） | `export DISPLAY=:1` |
 | 看成绩单 | `cat ~/mecharm_ws/grasp_logs/summary.txt` |
 | 清理（每次跑完都要） | `for p in "ig[n] gazebo" "gras[p]_task" "robot_stat[e]_publisher" "parameter_bridg[e]" "spawne[r]"; do pkill -9 -f "$p"; done` |
