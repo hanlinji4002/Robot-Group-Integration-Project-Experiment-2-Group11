@@ -32,7 +32,7 @@
 6. 对不可达目标、无逆解、关节超限等情况进行判断并安全停止。
 
 ### 运行结果
-![Uploading flow3-demo.gif…]()
+<img width="560" height="314" alt="flow3-demo" src="https://github.com/user-attachments/assets/b008b038-a910-478e-972b-21ce09a9039a" />
 
 
 ## 阶段二：真机验证
