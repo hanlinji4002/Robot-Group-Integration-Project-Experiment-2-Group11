@@ -1,2 +1,3 @@
-01-simulation/results/
+01-simulation/results/*
+!01-simulation/results/flow3/
 .DS_Store
