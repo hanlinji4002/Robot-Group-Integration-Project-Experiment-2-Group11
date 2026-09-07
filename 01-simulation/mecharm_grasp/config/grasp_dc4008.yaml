@@ -1,7 +1,7 @@
 # 抓取流程 3：反向对角搬运。
 # A3 位于右前方偏右（J1 -56.9°），B3 位于右前方偏左（J1 +25.6°）。
 # 两点半径均保留在稳定可达区，82.5° 的反向转动与流程 1/2 方向相反。
-grasp_task3:
+grasp_task_dc4008:
   ros__parameters:
     use_sim_time: true
 
@@ -31,10 +31,10 @@ grasp_task3:
     cycles: 5
 
     # 使用独立目录，避免覆盖流程 1/2 的运行证据
-    log_dir: "~/grasp_logs3"
+    log_dir: "~/grasp_logs_dc4008"
 
-    # 必须与 theWorld3.sdf 的世界名一致
-    world_name: "grasp_world3"
+    # 必须与 theWorld_dc4008.sdf 的世界名一致
+    world_name: "grasp_world_dc4008"
 
     # 纯物理抓取：接触 + 摩擦，不启用仿真吸附
     sim_attach: false

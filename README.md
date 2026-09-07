@@ -55,12 +55,12 @@
 │       │   ├── arm_model.xacro         机械臂模型
 │       │   ├── theWorld.sdf            仿真世界（流程 1）
 │       │   ├── theWorld2.sdf           仿真世界（流程 2）
-│       │   └── theWorld3.sdf           仿真世界（流程 3：反向对角搬运）
+│       │   └── theWorld_dc4008.sdf     仿真世界（流程 3：反向对角搬运）
 │       │
 │       ├── config/                     【参数设置】
 │       │   ├── grasp.yaml              抓取参数（流程 1）
 │       │   ├── grasp2.yaml             抓取参数（流程 2）
-│       │   ├── grasp3.yaml             抓取参数（流程 3）
+│       │   ├── grasp_dc4008.yaml       抓取参数（流程 3）
 │       │   ├── controllers.yaml        ros2_control 控制器配置
 │       │   ├── GripperCalc.py          标定工具中心
 │       │   └── Gripper_touch.py        标定夹爪闭合角
@@ -73,7 +73,7 @@
 │       └── launch/                     【仿真启动文件】
 │           ├── sim.launch.py           一键启动流程 1
 │           ├── sim2.launch.py          一键启动流程 2
-│           └── sim3.launch.py          一键启动流程 3
+│           └── sim_dc4008.launch.py    一键启动流程 3
 │
 └── 02-real-robot/                      真机阶段（Mac 网线直连臂内树莓派）
     ├── README.md                       文件结构、Mac 操作步骤、常见问题
@@ -98,9 +98,9 @@
 | 放置点 B | [0.12, -0.08] | [0.052, -0.130] | [0.125, 0.060] |
 | 工作半径 | 0.144 m | 0.140 m | 0.137–0.139 m |
 | J1 转动幅度 | 67° | 80° | 82.5°（反向） |
-| 验证状态 | Jetson 5/5 | Jetson 5/5 | IK 静态检查通过，待 Jetson 实跑 |
+| 验证状态 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 |
 
-启动命令使用 `sim.launch.py`、`sim2.launch.py` 或 `sim3.launch.py` 切换流程。
+启动命令使用 `sim.launch.py`、`sim2.launch.py` 或 `sim_dc4008.launch.py` 切换流程。
 
 ## 代码模块化说明
 
