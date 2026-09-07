@@ -1,0 +1,453 @@
+[INFO] [launch]: All log files can be found below /home/nvidia/.ros/log/2026-09-07-09-22-15-845915-nvidia-desktop-6014
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [ign-1]: process started with pid [6017]
+[INFO] [parameter_bridge-2]: process started with pid [6019]
+[INFO] [robot_state_publisher-3]: process started with pid [6021]
+[INFO] [create-4]: process started with pid [6023]
+[create-4] [INFO] [1788744136.246416792] [ros_gz_sim]: Requesting list of world names.
+[robot_state_publisher-3] [INFO] [1788744136.270704792] [robot_state_publisher]: got segment base
+[robot_state_publisher-3] [INFO] [1788744136.272220568] [robot_state_publisher]: got segment gripper_base
+[robot_state_publisher-3] [INFO] [1788744136.272822712] [robot_state_publisher]: got segment gripper_left1
+[robot_state_publisher-3] [INFO] [1788744136.273252792] [robot_state_publisher]: got segment gripper_left2
+[robot_state_publisher-3] [INFO] [1788744136.273643352] [robot_state_publisher]: got segment gripper_left3
+[robot_state_publisher-3] [INFO] [1788744136.274013240] [robot_state_publisher]: got segment gripper_right1
+[robot_state_publisher-3] [INFO] [1788744136.274407096] [robot_state_publisher]: got segment gripper_right2
+[robot_state_publisher-3] [INFO] [1788744136.274776184] [robot_state_publisher]: got segment gripper_right3
+[robot_state_publisher-3] [INFO] [1788744136.275149176] [robot_state_publisher]: got segment link1
+[robot_state_publisher-3] [INFO] [1788744136.275525048] [robot_state_publisher]: got segment link2
+[robot_state_publisher-3] [INFO] [1788744136.275895832] [robot_state_publisher]: got segment link3
+[robot_state_publisher-3] [INFO] [1788744136.276250776] [robot_state_publisher]: got segment link4
+[robot_state_publisher-3] [INFO] [1788744136.276619160] [robot_state_publisher]: got segment link5
+[robot_state_publisher-3] [INFO] [1788744136.276985752] [robot_state_publisher]: got segment link6
+[robot_state_publisher-3] [INFO] [1788744136.277347992] [robot_state_publisher]: got segment world
+[parameter_bridge-2] [INFO] [1788744136.285539000] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/clock (ignition.msgs.Clock) -> /clock (rosgraph_msgs/msg/Clock)] (Lazy 0)
+[parameter_bridge-2] [INFO] [1788744136.287288120] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/model/target_object/cmd_vel (geometry_msgs/msg/Twist) -> /model/target_object/cmd_vel (ignition.msgs.Twist)] (Lazy 0)
+[parameter_bridge-2] [INFO] [1788744136.289417432] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/model/target_object/odometry (ignition.msgs.Odometry) -> /model/target_object/odometry (nav_msgs/msg/Odometry)] (Lazy 0)
+[create-4] [INFO] [1788744136.855943768] [ros_gz_sim]: Waiting messages on topic [robot_description].
+[create-4] [INFO] [1788744136.869121560] [ros_gz_sim]: Requested creation of entity.
+[create-4] [INFO] [1788744136.869221816] [ros_gz_sim]: OK creation of entity.
+[INFO] [create-4]: process has finished cleanly [pid 6023]
+[INFO] [spawner-5]: process started with pid [6090]
+[spawner-5] [INFO] [1788744137.578339928] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[ign-1] [INFO] [1788744138.624392120] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_state_publisher
+[ign-1] [INFO] [1788744138.624481176] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_description
+[ign-1] [INFO] [1788744138.679336760] [gz_ros2_control]: connected to service!! robot_state_publisher asking for robot_description
+[ign-1] [INFO] [1788744138.681321880] [gz_ros2_control]: Received URDF from param server
+[ign-1] [INFO] [1788744138.683232536] [gz_ros2_control]: [gz_ros2_control] Fixed joint ['world_to_base'] (Entity='60') is skipped.
+[ign-1] [INFO] [1788744138.691152632] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign-1] [INFO] [1788744138.691369496] [gz_ros2_control]: Loading joint: joint1_to_base
+[ign-1] [INFO] [1788744138.691418936] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.691436760] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691463928] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.691480248] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.691494776] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691549336] [gz_ros2_control]: Loading joint: joint2_to_joint1
+[ign-1] [INFO] [1788744138.691573464] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.691588248] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691601528] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.691613528] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.691622680] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691648824] [gz_ros2_control]: Loading joint: joint3_to_joint2
+[ign-1] [INFO] [1788744138.691664888] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.691794872] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691819736] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.691835864] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.691854744] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691888344] [gz_ros2_control]: Loading joint: joint4_to_joint3
+[ign-1] [INFO] [1788744138.691906872] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.691920280] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691936024] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.691947416] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.691956504] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.691988216] [gz_ros2_control]: Loading joint: joint5_to_joint4
+[ign-1] [INFO] [1788744138.692006008] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692018104] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692039864] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692049816] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692057496] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692080792] [gz_ros2_control]: Loading joint: joint6_to_joint5
+[ign-1] [INFO] [1788744138.692093848] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692103416] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692112184] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692189464] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692205464] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692247448] [gz_ros2_control]: Loading joint: gripper_controller
+[ign-1] [INFO] [1788744138.692275960] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692294360] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692309528] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692319256] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692327352] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692351896] [gz_ros2_control]: Loading joint: gripper_base_to_gripper_left2
+[ign-1] [INFO] [1788744138.692396632] [gz_ros2_control]: Joint 'gripper_base_to_gripper_left2'is mimicking joint 'gripper_controller' with multiplier: 1
+[ign-1] [INFO] [1788744138.692430424] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692444728] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692453720] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692461592] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692481752] [gz_ros2_control]: Loading joint: gripper_left3_to_gripper_left1
+[ign-1] [INFO] [1788744138.692500984] [gz_ros2_control]: Joint 'gripper_left3_to_gripper_left1'is mimicking joint 'gripper_controller' with multiplier: -1
+[ign-1] [INFO] [1788744138.692515096] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692526008] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692547288] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692557080] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692574232] [gz_ros2_control]: Loading joint: gripper_base_to_gripper_right3
+[ign-1] [INFO] [1788744138.692669016] [gz_ros2_control]: Joint 'gripper_base_to_gripper_right3'is mimicking joint 'gripper_controller' with multiplier: -1
+[ign-1] [INFO] [1788744138.692688536] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692699256] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692772536] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692814872] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.692846584] [gz_ros2_control]: Loading joint: gripper_base_to_gripper_right2
+[ign-1] [INFO] [1788744138.692869752] [gz_ros2_control]: Joint 'gripper_base_to_gripper_right2'is mimicking joint 'gripper_controller' with multiplier: -1
+[ign-1] [INFO] [1788744138.692940024] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.692963256] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.692977208] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.692985880] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.693005144] [gz_ros2_control]: Loading joint: gripper_right3_to_gripper_right1
+[ign-1] [INFO] [1788744138.693026328] [gz_ros2_control]: Joint 'gripper_right3_to_gripper_right1'is mimicking joint 'gripper_controller' with multiplier: 1
+[ign-1] [INFO] [1788744138.693041720] [gz_ros2_control]: 	State:
+[ign-1] [INFO] [1788744138.693052216] [gz_ros2_control]: 		 position
+[ign-1] [INFO] [1788744138.693062424] [gz_ros2_control]: 		 velocity
+[ign-1] [INFO] [1788744138.693070168] [gz_ros2_control]: 	Command:
+[ign-1] [INFO] [1788744138.693436056] [resource_manager]: Initialize hardware 'mecharm_system' 
+[ign-1] [INFO] [1788744138.693764888] [resource_manager]: Successful initialization of hardware 'mecharm_system'
+[ign-1] [INFO] [1788744138.693895384] [resource_manager]: 'configure' hardware 'mecharm_system' 
+[ign-1] [INFO] [1788744138.693909176] [gz_ros2_control]: System Successfully configured!
+[ign-1] [INFO] [1788744138.693939320] [resource_manager]: Successful 'configure' of hardware 'mecharm_system'
+[ign-1] [INFO] [1788744138.693957656] [resource_manager]: 'activate' hardware 'mecharm_system' 
+[ign-1] [INFO] [1788744138.693973656] [resource_manager]: Successful 'activate' of hardware 'mecharm_system'
+[ign-1] [INFO] [1788744138.693984472] [gz_ros2_control]: Loading controller_manager
+[ign-1] libEGL warning: MESA-LOADER: failed to open nvidia-drm: /usr/lib/dri/nvidia-drm_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/aarch64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
+[ign-1] 
+[ign-1] libEGL warning: MESA-LOADER: failed to open nvidia-drm: /usr/lib/dri/nvidia-drm_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/aarch64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
+[ign-1] 
+[ign-1] [INFO] [1788744138.835181496] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[spawner-5] [INFO] [1788744138.853963736] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[ign-1] [INFO] [1788744138.857582136] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[ign-1] [INFO] [1788744138.857887672] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[ign-1] libEGL warning: egl: failed to create dri2 screen
+[ign-1] libEGL warning: egl: failed to create dri2 screen
+[ign-1] [WARN] [1788744140.377417624] [gz_ros2_control]:  Desired controller update period (0.01 s) is slower than the gazebo simulation period (0.004 s).
+[spawner-5] [INFO] [1788744140.416247128] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m
+[INFO] [spawner-5]: process has finished cleanly [pid 6090]
+[INFO] [spawner-6]: process started with pid [6183]
+[INFO] [spawner-7]: process started with pid [6185]
+[spawner-6] [INFO] [1788744141.275917496] [spawner_arm_controller]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [INFO] [1788744141.580969720] [spawner_hand_controller]: waiting for service /controller_manager/list_controllers to become available...
+[ign-1] [INFO] [1788744141.781432856] [controller_manager]: Loading controller 'arm_controller'
+[ign-1] [WARN] [1788744141.802177560] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-6] [INFO] [1788744141.824791608] [spawner_arm_controller]: [94mLoaded [1marm_controller[0m
+[ign-1] [INFO] [1788744141.827304152] [controller_manager]: Configuring controller 'arm_controller'
+[ign-1] [INFO] [1788744141.827689208] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ign-1] [INFO] [1788744141.827767064] [arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].
+[ign-1] [INFO] [1788744141.827832184] [arm_controller]: Using 'splines' interpolation method.
+[ign-1] [INFO] [1788744141.829761528] [arm_controller]: Controller state will be published at 50.00 Hz.
+[ign-1] [INFO] [1788744141.833483032] [arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-6] [INFO] [1788744141.888956920] [spawner_arm_controller]: [92mConfigured and activated [1marm_controller[0m
+[INFO] [spawner-6]: process has finished cleanly [pid 6183]
+[INFO] [grasp_task3-8]: process started with pid [6226]
+[ign-1] [INFO] [1788744142.419500056] [controller_manager]: Loading controller 'hand_controller'
+[ign-1] [WARN] [1788744142.438872184] [hand_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-7] [INFO] [1788744142.459093976] [spawner_hand_controller]: [94mLoaded [1mhand_controller[0m
+[ign-1] [INFO] [1788744142.543314456] [controller_manager]: Configuring controller 'hand_controller'
+[ign-1] [INFO] [1788744142.543638456] [hand_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ign-1] [INFO] [1788744142.543684408] [hand_controller]: Command interfaces are [position] and state interfaces are [position velocity].
+[ign-1] [INFO] [1788744142.543803064] [hand_controller]: Using 'splines' interpolation method.
+[ign-1] [INFO] [1788744142.544768696] [hand_controller]: Controller state will be published at 50.00 Hz.
+[ign-1] [INFO] [1788744142.546652664] [hand_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-7] [INFO] [1788744142.678201560] [spawner_hand_controller]: [92mConfigured and activated [1mhand_controller[0m
+[INFO] [spawner-7]: process has finished cleanly [pid 6185]
+[grasp_task3-8] [INFO] [1788744145.017545112] [grasp_task3]: 等待控制器上线...
+[grasp_task3-8] [INFO] [1788744145.019027864] [grasp_task3]: 规划路径点（逆解）...
+[grasp_task3-8] [INFO] [1788744157.662217048] [grasp_task3]: ===== 第 1/5 次抓取 =====
+[grasp_task3-8] [INFO] [1788744157.663011832] [grasp_task3]: [1] 回零
+[ign-1] [INFO] [1788744157.664617912] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744157.664788952] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744161.492201336] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744161.536786008] [grasp_task3]: [1] 张开夹爪
+[ign-1] [INFO] [1788744161.538314296] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744161.538438040] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744163.352661336] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744163.407443224] [grasp_task3]: [1] 到达取物点上方
+[ign-1] [INFO] [1788744163.409393240] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744163.409551960] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744167.540127576] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744167.587885496] [grasp_task3]: [1] 下降
+[ign-1] [INFO] [1788744167.589211064] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744167.589309752] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744169.983652760] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744170.006054680] [grasp_task3]: [1] 夹取
+[ign-1] [INFO] [1788744170.007467800] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744170.007586296] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744171.936172056] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744171.974279256] [grasp_task3]: [1] 抬升
+[ign-1] [INFO] [1788744171.976828600] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744171.976945112] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744174.505660248] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744174.548608760] [grasp_task3]: [1] 移动到放置点上方
+[ign-1] [INFO] [1788744174.550578200] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744174.550688696] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744178.911808760] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744178.980621976] [grasp_task3]: [1] 下降到放置点
+[ign-1] [INFO] [1788744178.982200856] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744178.982347800] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744181.433139544] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744181.495023608] [grasp_task3]: [1] 释放
+[ign-1] [INFO] [1788744181.496557496] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744181.496683512] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744183.359812952] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744183.407538424] [grasp_task3]: [1] 抬升离开
+[ign-1] [INFO] [1788744183.411031896] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744183.411138744] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744185.723365144] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744185.776732184] [grasp_task3]: [1] 回零
+[ign-1] [INFO] [1788744185.778463768] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744185.778564504] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744189.844464632] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744191.040608792] [grasp_task3]: ===== 第 2/5 次抓取 =====
+[grasp_task3-8] [INFO] [1788744191.041753560] [grasp_task3]: [2] 回零
+[ign-1] [INFO] [1788744191.043492600] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744191.043615384] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744194.769696536] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744194.817882936] [grasp_task3]: [2] 张开夹爪
+[ign-1] [INFO] [1788744194.819396472] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744194.819501272] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744196.593606616] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744196.632766872] [grasp_task3]: [2] 到达取物点上方
+[ign-1] [INFO] [1788744196.634276088] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744196.634402200] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744200.718152664] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744200.765519928] [grasp_task3]: [2] 下降
+[ign-1] [INFO] [1788744200.767188440] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744200.767296152] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744203.096257976] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744203.133086392] [grasp_task3]: [2] 夹取
+[ign-1] [INFO] [1788744203.134779672] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744203.134918616] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744205.044695576] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744205.097823128] [grasp_task3]: [2] 抬升
+[ign-1] [INFO] [1788744205.099536920] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744205.099646808] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744207.621791064] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744207.669627288] [grasp_task3]: [2] 移动到放置点上方
+[ign-1] [INFO] [1788744207.671851352] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744207.671954008] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744212.048841272] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744212.106606936] [grasp_task3]: [2] 下降到放置点
+[ign-1] [INFO] [1788744212.108709240] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744212.108854840] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744214.637416152] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744214.676659192] [grasp_task3]: [2] 释放
+[ign-1] [INFO] [1788744214.678166200] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744214.678274968] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744216.574807128] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744216.589733400] [grasp_task3]: [2] 抬升离开
+[ign-1] [INFO] [1788744216.591131064] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744216.591234104] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744218.982807288] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744219.008231096] [grasp_task3]: [2] 回零
+[ign-1] [INFO] [1788744219.010153048] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744219.010295672] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744223.163890904] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744224.372828696] [grasp_task3]: ===== 第 3/5 次抓取 =====
+[grasp_task3-8] [INFO] [1788744224.373690232] [grasp_task3]: [3] 回零
+[ign-1] [INFO] [1788744224.375175256] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744224.375285752] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744228.178853912] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744228.254383064] [grasp_task3]: [3] 张开夹爪
+[ign-1] [INFO] [1788744228.255840920] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744228.255951480] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744230.078268632] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744230.117519576] [grasp_task3]: [3] 到达取物点上方
+[ign-1] [INFO] [1788744230.119372472] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744230.119500344] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744234.266777912] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744234.300776664] [grasp_task3]: [3] 下降
+[ign-1] [INFO] [1788744234.302212600] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744234.302313624] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744236.671672792] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744236.718914200] [grasp_task3]: [3] 夹取
+[ign-1] [INFO] [1788744236.720439576] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744236.720534008] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744238.600827896] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744238.634610904] [grasp_task3]: [3] 抬升
+[ign-1] [INFO] [1788744238.636104824] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744238.636226296] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744241.104116856] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744241.154206904] [grasp_task3]: [3] 移动到放置点上方
+[ign-1] [INFO] [1788744241.155643000] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744241.155752312] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744245.338445272] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744245.379926872] [grasp_task3]: [3] 下降到放置点
+[ign-1] [INFO] [1788744245.381241368] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744245.381345752] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744247.821066456] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744247.845984568] [grasp_task3]: [3] 释放
+[ign-1] [INFO] [1788744247.847587704] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744247.847694904] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744249.707746584] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744249.761997688] [grasp_task3]: [3] 抬升离开
+[ign-1] [INFO] [1788744249.763478744] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744249.763596376] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744252.127182424] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744252.189915192] [grasp_task3]: [3] 回零
+[ign-1] [INFO] [1788744252.192237624] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744252.192392824] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744256.321016088] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744257.501630456] [grasp_task3]: ===== 第 4/5 次抓取 =====
+[grasp_task3-8] [INFO] [1788744257.507357208] [grasp_task3]: [4] 回零
+[ign-1] [INFO] [1788744257.508767352] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744257.508892312] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744261.298307064] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744261.332353240] [grasp_task3]: [4] 张开夹爪
+[ign-1] [INFO] [1788744261.334808664] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744261.334925752] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744263.151347288] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744263.198953912] [grasp_task3]: [4] 到达取物点上方
+[ign-1] [INFO] [1788744263.200606616] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744263.200715384] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744267.296149208] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744267.322173176] [grasp_task3]: [4] 下降
+[ign-1] [INFO] [1788744267.324243096] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744267.324381624] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744269.716646744] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744269.740261560] [grasp_task3]: [4] 夹取
+[ign-1] [INFO] [1788744269.742132696] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744269.742257208] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744271.657989432] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744271.707880280] [grasp_task3]: [4] 抬升
+[ign-1] [INFO] [1788744271.709329592] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744271.709435000] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744274.153443960] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744274.172295224] [grasp_task3]: [4] 移动到放置点上方
+[ign-1] [INFO] [1788744274.173774136] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744274.173880408] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744278.406481944] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744278.451017240] [grasp_task3]: [4] 下降到放置点
+[ign-1] [INFO] [1788744278.452491608] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744278.452602168] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744280.918859736] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744280.973645720] [grasp_task3]: [4] 释放
+[ign-1] [INFO] [1788744280.975046712] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744280.975156312] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744282.875895096] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744282.942609656] [grasp_task3]: [4] 抬升离开
+[ign-1] [INFO] [1788744282.944108824] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744282.944217656] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744285.305977784] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744285.366444088] [grasp_task3]: [4] 回零
+[ign-1] [INFO] [1788744285.368160216] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744285.368271832] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744289.438967288] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744290.637432024] [grasp_task3]: ===== 第 5/5 次抓取 =====
+[grasp_task3-8] [INFO] [1788744290.638404504] [grasp_task3]: [5] 回零
+[ign-1] [INFO] [1788744290.639983480] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744290.640374552] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744294.430185336] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744294.465198264] [grasp_task3]: [5] 张开夹爪
+[ign-1] [INFO] [1788744294.466730616] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744294.466855320] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744296.289536248] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744296.329617496] [grasp_task3]: [5] 到达取物点上方
+[ign-1] [INFO] [1788744296.331062456] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744296.331196504] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744300.592702424] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744300.667183736] [grasp_task3]: [5] 下降
+[ign-1] [INFO] [1788744300.668605080] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744300.668732376] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744303.070735832] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744303.137976280] [grasp_task3]: [5] 夹取
+[ign-1] [INFO] [1788744303.139515768] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744303.139622744] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744305.041565784] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744305.099559864] [grasp_task3]: [5] 抬升
+[ign-1] [INFO] [1788744305.101444536] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744305.101554840] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744307.581552600] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744307.624331768] [grasp_task3]: [5] 移动到放置点上方
+[ign-1] [INFO] [1788744307.625769144] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744307.625863256] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744311.814395224] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744311.856258584] [grasp_task3]: [5] 下降到放置点
+[ign-1] [INFO] [1788744311.857950808] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744311.858101976] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744314.387093784] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744314.427625624] [grasp_task3]: [5] 释放
+[ign-1] [INFO] [1788744314.429118264] [hand_controller]: Received new action goal
+[ign-1] [INFO] [1788744314.429228248] [hand_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744316.308995800] [hand_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744316.340027288] [grasp_task3]: [5] 抬升离开
+[ign-1] [INFO] [1788744316.341562648] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744316.341666808] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744318.673960376] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744318.708077400] [grasp_task3]: [5] 回零
+[ign-1] [INFO] [1788744318.709475320] [arm_controller]: Received new action goal
+[ign-1] [INFO] [1788744318.709585624] [arm_controller]: Accepted new action goal
+[ign-1] [INFO] [1788744322.738335384] [arm_controller]: Goal reached, success!
+[grasp_task3-8] [INFO] [1788744323.023063192] [grasp_task3]: 任务完成：5 次抓取成功 5 次
+[grasp_task3-8] [INFO] [1788744323.026595864] [grasp_task3]: 任务节点退出
+[INFO] [grasp_task3-8]: process has finished cleanly [pid 6226]
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [robot_state_publisher-3]: sending signal 'SIGINT' to process[robot_state_publisher-3]
+[INFO] [parameter_bridge-2]: sending signal 'SIGINT' to process[parameter_bridge-2]
+[INFO] [ign-1]: sending signal 'SIGINT' to process[ign-1]
+[parameter_bridge-2] [INFO] [1788744323.548851608] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-3] [INFO] [1788744323.548855640] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-3] [INFO] [1788744323.560798104] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-2] [INFO] [1788744323.562723192] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [parameter_bridge-2]: process has finished cleanly [pid 6019]
+[INFO] [robot_state_publisher-3]: process has finished cleanly [pid 6021]
+[ign-1] Stack trace (most recent call last):
+[ign-1] #31   Object "/lib/aarch64-linux-gnu/libc.so.6", at 0xffffa87874d7, in __libc_start_main
+[ign-1] #30   Object "/lib/aarch64-linux-gnu/libc.so.6", at 0xffffa87873ff, in 
+[ign-1] #29   Object "ign gazebo gui", at 0xaaaad2ae0adf, in 
+[ign-1] #28   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa89b3e0b, in ruby_run_node
+[ign-1] #27   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa89b04d7, in 
+[ign-1] #26   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b39c63, in rb_vm_exec
+[ign-1] #25   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b34a1b, in 
+[ign-1] #24   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b32073, in 
+[ign-1] #23   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b2fff7, in 
+[ign-1] #22   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8a8066f, in 
+[ign-1] #21   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa89b1ae7, in rb_protect
+[ign-1] #20   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b3e28f, in rb_yield
+[ign-1] #19   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b39c63, in rb_vm_exec
+[ign-1] #18   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b34a1b, in 
+[ign-1] #17   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b32073, in 
+[ign-1] #16   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8b2fff7, in 
+[ign-1] #15   Object "/usr/lib/aarch64-linux-gnu/ruby/3.0.0/fiddle.so", at 0xffffa4645dc3, in 
+[ign-1] #14   Object "/lib/aarch64-linux-gnu/libruby-3.0.so.3.0", at 0xffffa8afe5e3, in rb_nogvl
+[ign-1] #13   Object "/usr/lib/aarch64-linux-gnu/ruby/3.0.0/fiddle.so", at 0xffffa46456fb, in 
+[ign-1] #12   Object "/lib/aarch64-linux-gnu/libffi.so.8", at 0xffffa45f3a93, in 
+[ign-1] #11   Object "/lib/aarch64-linux-gnu/libffi.so.8", at 0xffffa45f6e0f, in 
+[ign-1] #10   Object "/usr/lib/aarch64-linux-gnu/libignition-gazebo6-ign.so.6.17.1", at 0xffffa3af001f, in runGui
+[ign-1] #9    Object "/lib/aarch64-linux-gnu/libignition-gazebo6-gui.so.6", at 0xffffa38a5c6f, in ignition::gazebo::v6::gui::runGui(int&, char**, char const*, char const*, int, char const*)
+[ign-1] #8    Object "/lib/aarch64-linux-gnu/libignition-gui6.so.6", at 0xffffa29f7743, in ignition::gui::Application::~Application()
+[ign-1] #7    Object "/lib/aarch64-linux-gnu/libignition-gui6.so.6", at 0xffffa29f7397, in ignition::gui::Application::~Application()
+[ign-1] #6    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1be0e47, in QQmlApplicationEngine::~QQmlApplicationEngine()
+[ign-1] #5    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1be1853, in QQmlApplicationEnginePrivate::~QQmlApplicationEnginePrivate()
+[ign-1] #4    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1b5e343, in QQmlEnginePrivate::~QQmlEnginePrivate()
+[ign-1] #3    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1b8e4ff, in QQmlMetaType::freeUnusedTypesAndCaches()
+[ign-1] #2    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1bb0543, in QQmlPropertyCache::~QQmlPropertyCache()
+[ign-1] #1    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1bb01b3, in QQmlPropertyCache::~QQmlPropertyCache()
+[ign-1] #0    Object "/lib/aarch64-linux-gnu/libQt5Qml.so.5", at 0xffffa1b44c14, in 
+[ign-1] Segmentation fault (Address not mapped to object [0xffff7a205450])
+[ign-1] [INFO] [1788744325.158754616] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ign-1] [INFO] [1788744325.159279224] [controller_manager]: Shutdown request received....
+[ign-1] [INFO] [1788744325.159497496] [controller_manager]: Shutting down all controllers in the controller manager.
+[ign-1] [INFO] [1788744325.159569528] [controller_manager]: Deactivating controller 'joint_state_broadcaster'
+[ign-1] [INFO] [1788744325.159670776] [controller_manager]: Shutting down controller 'joint_state_broadcaster'
+[ign-1] [INFO] [1788744325.159740696] [controller_manager]: Deactivating controller 'arm_controller'
+[ign-1] [INFO] [1788744325.159799736] [controller_manager]: Shutting down controller 'arm_controller'
+[ign-1] [INFO] [1788744325.159830360] [controller_manager]: Deactivating controller 'hand_controller'
+[ign-1] [INFO] [1788744325.159863448] [controller_manager]: Shutting down controller 'hand_controller'
+[ign-1] [INFO] [1788744325.159914904] [resource_manager]: 'deactivate' hardware 'mecharm_system' 
+[ign-1] [INFO] [1788744325.159958296] [resource_manager]: Successful 'deactivate' of hardware 'mecharm_system'
+[ign-1] [INFO] [1788744325.159966008] [resource_manager]: 'shutdown' hardware 'mecharm_system' 
+[ign-1] [INFO] [1788744325.159973336] [resource_manager]: Successful 'shutdown' of hardware 'mecharm_system'
+[ign-1] [INFO] [1788744325.159979128] [controller_manager]: Shutting down the controller manager.
+[ign-1] /usr/lib/ruby/ignition/cmdgazebo6.rb:183:in `kill': No such process (Errno::ESRCH)
+[ign-1] 	from /usr/lib/ruby/ignition/cmdgazebo6.rb:183:in `killProcess'
+[ign-1] 	from /usr/lib/ruby/ignition/cmdgazebo6.rb:509:in `handle_signal'
+[ign-1] 	from /usr/lib/ruby/ignition/cmdgazebo6.rb:514:in `block in execute'
+[ign-1] 	from /usr/lib/ruby/ignition/cmdgazebo6.rb:524:in `wait2'
+[ign-1] 	from /usr/lib/ruby/ignition/cmdgazebo6.rb:524:in `execute'
+[ign-1] 	from /usr/bin/ign:301:in `<main>'
+[ERROR] [ign-1]: process has died [pid 6017, exit code 1, cmd 'ign gazebo -r /home/nvidia/Desktop/exp2_sim_ws/install/mecharm_grasp/share/mecharm_grasp/worlds/theWorld3.sdf'].

@@ -20,30 +20,35 @@
 │   ├── mecharm_grasp/
 │   │   ├── __init__.py             Python 包标记
 │   │   ├── ros_node.py             抓取任务节点（流程 1）：数值 IK 状态机，A 点取物、B 点放置，不可达判定与日志输出
-│   │   └── ros_node2.py            抓取任务节点（流程 2）：流程 1 的独立副本，改这个不影响流程 1
+│   │   ├── ros_node2.py            抓取任务节点（流程 2）：流程 1 的独立副本，改这个不影响流程 1
+│   │   └── ros_node3.py             抓取任务节点（流程 3）：沿用流程 2 核心逻辑的独立副本
 │   ├── model/
 │   │   ├── arm_model.xacro         机械臂模型：惯量、关节限位、夹爪 mimic 关节、碰撞体
 │   │   ├── theWorld.sdf            仿真世界（流程 1）：桌面、25 mm 目标方块、物理与里程计插件
 │   │   ├── theWorld2.sdf           仿真世界（流程 2）：方块初始位置改到 A2 点
-│   │   └── theWorld_dc4008.sdf     仿真世界（流程 3）：方块初始位置改到 A3 点
+│   │   ├── theWorld3.sdf           仿真世界（流程 3）：方块初始位置为 A3
+│   │   └── theWorld_dc4008.sdf     仿真世界（DC4008）：方块初始位置为反向 A3 点
 │   ├── config/
 │   │   ├── grasp.yaml              抓取参数（流程 1）：A/B 点、安全高度、工具偏移、夹爪开合角、抓取次数、日志目录
 │   │   ├── grasp2.yaml             抓取参数（流程 2）：A2/B2 点，其余同上
-│   │   ├── grasp_dc4008.yaml       抓取参数（流程 3）：反向 A3/B3 点与独立日志目录
-│   │   ├── controllers.yaml        ros2_control 控制器配置：手臂、夹爪、关节状态广播（三套流程共用）
+│   │   ├── grasp3.yaml             抓取参数（流程 3）：A3/B3 点、独立日志目录和世界名
+│   │   ├── grasp_dc4008.yaml       抓取参数（DC4008）：反向 A3/B3 点与独立日志目录
+│   │   ├── controllers.yaml        ros2_control 控制器配置：手臂、夹爪、关节状态广播（四套流程共用）
 │   │   ├── GripperCalc.py          标定工具中心：读夹爪指尖与方块的真实位姿，算出虎口中心偏差，用来定 tool_tip_offset
 │   │   └── Gripper_touch.py        标定夹爪闭合角：手指逐步合拢，测出方块首次被碰动的角度，用来定 gripper_close
 │   └── launch/
 │       ├── sim.launch.py           一键启动流程 1：世界、机器人、控制器、状态发布、任务节点
 │       ├── sim2.launch.py          一键启动流程 2
-│       └── sim_dc4008.launch.py    一键启动流程 3（复用流程 1 控制算法）
-└── results/                        验收数据（未上传到仓库）
-    ├── README.md                   验收记录说明
-    ├── results.csv                 每次抓取的结果与落点偏差
-    ├── summary.txt                 汇总：成功次数、平均偏差
-    ├── trajectory.csv              关节轨迹记录
-    ├── errors.log                  运行中的异常日志
-    └── error_tests.txt             异常测试留痕：不可达、超限位等
+│       ├── sim3.launch.py          一键启动流程 3
+│       └── sim_dc4008.launch.py    一键启动 DC4008 流程（复用流程 1 控制算法）
+└── results/                        验收数据（流程 1/2 数据未上传）
+    └── flow3/                      流程 3 完整一轮：5/5 成功，不含录像
+        ├── README.md               验收参数、结果与复现命令
+        ├── results.csv             每次抓取结果与落点
+        ├── summary.txt             成功次数汇总
+        ├── trajectory.csv          关节轨迹记录
+        ├── errors.log              任务异常日志（本轮为空）
+        └── launch-recorded.log     完整启动、抓取与退出日志
 ```
 
 ---
@@ -135,25 +140,24 @@ for p in "ig[n] gazebo" "gras[p]_task" "robot_stat[e]_publisher" "parameter_brid
 
 ---
 
-## 三、三套抓取流程
+## 三、四套抓取流程
 
-程序里装了三套抓取动作，方块位置和日志目录不同。
+程序里装了四套抓取动作，方块位置和日志目录互相独立。
 
-| | 流程 1 | 流程 2 | 流程 3 |
-|---|---|---|---|
-| 取物点 A | [0.12, 0.08] | [0.137, 0.029] | [0.075, -0.115] |
-| 放置点 B | [0.12, -0.08] | [0.052, -0.130] | [0.125, 0.060] |
-| 工作半径 | 0.144 m | 0.140 m | 0.137–0.139 m |
-| J1 转动幅度 | 67° | 80° | 82.5°（反向） |
-| A 点偏离正前方 | +34° | +12° | -56.9° |
-| 节点名 | grasp_task | grasp_task2 | grasp_task_dc4008 |
-| 世界名 | grasp_world | grasp_world2 | grasp_world_dc4008 |
-| 日志目录 | ~/mecharm_ws/grasp_logs | ~/grasp_logs2 | ~/grasp_logs_dc4008 |
-| 验证状态 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 |
+| | 流程 1 | 流程 2 | 流程 3 | DC4008 |
+|---|---|---|---|---|
+| 取物点 A | [0.12, 0.08] | [0.137, 0.029] | [0.095, 0.095] | [0.075, -0.115] |
+| 放置点 B | [0.12, -0.08] | [0.052, -0.130] | [0.100, -0.090] | [0.125, 0.060] |
+| 工作半径 | 0.144 m | 0.140 m | A 0.134 m / B 0.135 m | 0.137-0.139 m |
+| J1 转动幅度 | 67° | 80° | 约 87° | 82.5°（反向） |
+| A 点偏离正前方 | 34° | 12° | 45° | -56.9° |
+| 节点名 | grasp_task | grasp_task2 | grasp_task3 | grasp_task_dc4008 |
+| 世界名 | grasp_world | grasp_world2 | grasp_world3 | grasp_world_dc4008 |
+| 日志目录 | ~/mecharm_ws/grasp_logs | ~/grasp_logs2 | ~/grasp_logs3 | ~/grasp_logs_dc4008 |
+| 验证状态 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 |
 
-流程 2 的取物点更靠前、更接近正前方但不正对，J1 转动幅度更大，工作半径略小因而逆解余量更足。
-三套流程均已在 Jetson 上实测 5 次抓取全部成功。流程 3 的五次落点均为
-`(0.1255, 0.0600~0.0601, 0.7625)`，错误日志为空。
+四套均已在 Jetson 上实测 5 次抓取全部成功。流程 3 的验收日志已提交；DC4008
+五次落点均为 `(0.1255, 0.0600~0.0601, 0.7625)`，错误日志为空。
 
 跑流程 2 就把命令里的 `sim` 换成 `sim2`：
 
@@ -161,13 +165,13 @@ for p in "ig[n] gazebo" "gras[p]_task" "robot_stat[e]_publisher" "parameter_brid
 ros2 launch mecharm_grasp sim2.launch.py gui:=false
 ```
 
-运行反向对角搬运流程 3：
+运行 DC4008 反向对角搬运流程：
 
 ```
 ros2 launch mecharm_grasp sim_dc4008.launch.py gui:=false
 ```
 
-流程 3 的成绩单：
+DC4008 流程的成绩单：
 
 ```
 cat ~/grasp_logs_dc4008/summary.txt
@@ -179,7 +183,21 @@ cat ~/grasp_logs_dc4008/summary.txt
 cat ~/grasp_logs2/summary.txt
 ```
 
-⚠️ **三套不能同时跑**，Gazebo 和控制器话题会互相打架。跑完一套、清理干净，再跑另一套。
+流程 3 是独立的斜向搬运场景，沿用流程 2 的 IK、轨迹动作、夹爪、状态机和日志逻辑。
+A3=[0.095, 0.095, 0.7635]，B3=[0.100, -0.090, 0.7635]，safe_height=0.05 m；世界中物体初始 pose 与 A3 一致。
+
+```bash
+export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
+export IGN_PARTITION=flow3_codex_sim
+ros2 launch mecharm_grasp sim3.launch.py gui:=false
+cat ~/grasp_logs3/summary.txt
+cat ~/grasp_logs3/results.csv
+```
+
+看画面先设置 `export DISPLAY=:1`，再用 `gui:=true`。新增 Flow3 文件后须先按第五节重新编译。
+本轮完整 5 次均成功，日志见 [results/flow3/](results/flow3/)。此流程仅在 Gazebo 中验证。
+
+⚠️ **四套应逐套运行**，Gazebo 和控制器话题会互相打架。跑完一套、清理干净，再跑另一套。
 
 ---
 
@@ -233,7 +251,10 @@ cd ~/Desktop/exp2_sim_ws && source /opt/ros/humble/setup.bash && source ~/mechar
 | 找工具箱（每次都要） | `source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && source ~/Desktop/exp2_sim_ws/install/setup.bash` |
 | 跑流程 1，不看画面 | `ros2 launch mecharm_grasp sim.launch.py gui:=false` |
 | 跑流程 2，不看画面 | `ros2 launch mecharm_grasp sim2.launch.py gui:=false` |
-| 跑流程 3，不看画面 | `ros2 launch mecharm_grasp sim_dc4008.launch.py gui:=false` |
+| 跑流程 3，不看画面 | `ros2 launch mecharm_grasp sim3.launch.py gui:=false` |
+| 看流程 3 成绩单 | `cat ~/grasp_logs3/summary.txt` |
+| 跑 DC4008，不看画面 | `ros2 launch mecharm_grasp sim_dc4008.launch.py gui:=false` |
+| 看 DC4008 成绩单 | `cat ~/grasp_logs_dc4008/summary.txt` |
 | 看画面（先输这个） | `export DISPLAY=:1` |
 | 看成绩单 | `cat ~/mecharm_ws/grasp_logs/summary.txt` |
 | 清理（每次跑完都要） | `for p in "ig[n] gazebo" "gras[p]_task" "robot_stat[e]_publisher" "parameter_bridg[e]" "spawne[r]"; do pkill -9 -f "$p"; done` |
