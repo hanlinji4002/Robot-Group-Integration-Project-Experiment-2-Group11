@@ -1,3 +1,9 @@
+# 【讲解】安装规则，colcon build 时执行。三件事：
+# 1) packages=['mecharm_grasp']：把 mecharm_grasp/ 目录当 Python 模块装进去（里面是任务节点）。
+# 2) data_files：把 launch/、model/、config/ 里的文件复制到 install/share/mecharm_grasp/ 下，
+#    目标子目录固定叫 launch、urdf、worlds、config —— launch 文件运行时就从这几个子目录找文件。
+# 3) entry_points：把命令名映射到函数。grasp_task -> ros_node.py 的 main()，
+#    所以 launch 里 executable='grasp_task' 启动的就是任务节点。
 import os
 from glob import glob
 from setuptools import setup

@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
 <!--
+【讲解】机械臂模型（URDF 的 xacro 写法，启动时由 xacro 展开）。
+- 骨架来自厂商官方 mycobot_description 包的 mechArm 270-Pi 模型（关节 origin/axis 逐字段一致），网格用 package:// 引用。
+- 我们补的部分：① 每个连杆的惯量（Gazebo 物理需要）② 关节限位与速度上限 ③ 官方夹爪的 5 个 mimic（联动）关节登记进 ros2_control，
+  否则 Gazebo 里夹爪连杆会散架 ④ 指垫碰撞体改成轴对齐小盒（曲面网格会被凸包化，导致隔空碰撞）⑤ 末尾的 <ros2_control> 与 gz_ros2_control 插件标签。
+讲解要点：零位姿态 = 大臂竖直、小臂水平向前（L 形），与真机一致。
+-->
+<!--
   mechArm 270 (Pi) + 自适应夹爪 的 Gazebo 仿真模型。
 
   基于官方 mycobot_ros2/mycobot_description 的

@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# 【讲解】真机驱动节点，跑在 Jetson。它是"翻译官"：
+# 上面对任务节点提供与仿真 ros2_control **一模一样**的三个接口（两个 FollowJointTrajectory 动作服务器 + /joint_states），
+# 下面通过 TCP 把指令转给臂内树莓派上的 arm_server.py，由它调 pymycobot 驱动舵机。
+# 因此任务节点 ros_node.py 一行不改就能从仿真切到真机（验收要求）。
+# 结构：
+#   ① 参数：臂内服务地址、速度上限、到位容差、关节方向/偏置、夹爪开合角与读值判定阈值。
+#   ② 两条 TCP 连接：motion 走运动（会阻塞到到位），state 走 10 Hz 状态轮询与急停，互不等待。
+#   ③ _publish_states：读角度 → 发 /joint_states。
+#   ④ _exec_arm：收到六关节轨迹目标 → 查 URDF 限位 → 度数与速度换算 → 臂内 goto → 按残差判成败。
+#   ⑤ _exec_hand：夹爪目标 → 开/合 → 读回值判定有没有夹住（20–60 算夹住），不对就松开重夹一次。
+#   ⑥ /soft_stop 软件急停：只 stop 不松舵机，防止手臂坠落。
+# 讲解要点：任何异常都以"动作失败"返回给任务节点，任务节点会记失败并回安全位；成败判据是读回的角度/夹爪值，不信指令返回码。
 """mechArm 270 真机驱动节点（Jetson 侧）。
 
 对外提供与仿真阶段 ros2_control 完全相同的 ROS 2 接口，任务节点
@@ -37,6 +49,7 @@ from mecharm_real.kinematics import (ARM_JOINTS, GRIPPER_JOINT, JOINT_LIMITS,
                                      deg_to_rad, rad_to_deg, speed_percent, gripper_state)
 
 
+# 【讲解】驱动节点类，接口名与仿真控制器保持一致
 class MechArmRealDriver(Node):
     def __init__(self):
         super().__init__('mecharm_real_driver')
@@ -80,6 +93,7 @@ class MechArmRealDriver(Node):
                                f"低速模式 max_speed={self.max_speed}")
 
     # ---------- 状态 ----------
+    # 【讲解】定时器回调：经 state 连接读六关节角度（度）→ 换成弧度 → 发布 /joint_states，任务节点靠它写轨迹日志
     def _publish_states(self):
         try:
             degs = self.state.get_angles().get('angles')
@@ -96,6 +110,7 @@ class MechArmRealDriver(Node):
         self.js_pub.publish(js)
 
     # ---------- 急停 ----------
+    # 【讲解】收到 /soft_stop true：置急停标志并让臂 stop，后续目标一律拒绝；false 解除
     def _on_soft_stop(self, msg):
         if msg.data:
             self.stopped = True
@@ -109,6 +124,7 @@ class MechArmRealDriver(Node):
             self.get_logger().info('软件急停解除')
 
     # ---------- 动作 ----------
+    # 【讲解】把成功/失败包装成动作结果；失败时 error_string 写原因，任务节点会打到 errors.log
     def _result(self, gh, ok, err=''):
         res = FollowJointTrajectory.Result()
         if ok:
@@ -122,9 +138,11 @@ class MechArmRealDriver(Node):
         return res
 
     @staticmethod
+    # 【讲解】轨迹点的 time_from_start 转成秒，最短 0.5 s
     def _duration(pt):
         return max(0.5, pt.time_from_start.sec + pt.time_from_start.nanosec * 1e-9)
 
+    # 【讲解】手臂动作：校验关节名与限位 → 弧度转角度 → 由"角度差/时长"算速度百分比并封顶 → 臂内 goto 阻塞到到位 → 残差 > 容差判失败
     def _exec_arm(self, gh):
         traj = gh.request.trajectory
         if self.stopped:
@@ -155,6 +173,7 @@ class MechArmRealDriver(Node):
             return self._result(gh, False, f'到位残差 {err} 超过 {self.tol}°（通信或负载异常）')
         return self._result(gh, True)
 
+    # 【讲解】夹爪动作：目标弧度离开/合哪个近就发哪个 → 臂内读回值 → 合爪不在 20–60 就松开重夹一次，仍不行判失败；张开不到 80 再张一次
     def _exec_hand(self, gh):
         traj = gh.request.trajectory
         if self.stopped:
@@ -207,6 +226,7 @@ class MechArmRealDriver(Node):
         return self._result(gh, True)
 
 
+# 【讲解】入口：起节点、多线程执行器；Ctrl+C 时先让臂 stop
 def main():
     rclpy.init()
     node = MechArmRealDriver()

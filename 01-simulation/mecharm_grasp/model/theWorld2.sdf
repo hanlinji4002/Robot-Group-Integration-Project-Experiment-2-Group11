@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <!--
+【讲解】流程 2 的仿真世界：与 theWorld.sdf 相同，只改了两处 —— 世界名 grasp_world2、方块初始位置 = grasp2.yaml 的 point_a。
+-->
+<!--
   抓取实验场景：地面 + 桌子 + 目标物。
   机械臂由 launch 文件用 ros_gz_sim 的 create 动态生成（放在桌面上），
   这样机器人模型只维护一份 URDF，不用在 SDF 里重复。

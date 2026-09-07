@@ -1,3 +1,6 @@
+# 【讲解】纯 Python 版运动学，与仿真任务节点 ros_node.py 的 CHAIN / T_FLANGE 完全一致（数值抄自官方 URDF）。
+# 不依赖 numpy / rclpy，所以 teach.py 在哪台机器都能算。
+# 另外放了几个小换算：角度<->弧度（含方向/偏置修正）、"角度差/时长"->速度百分比、夹爪弧度->开/合。
 """纯 Python 运动学（不依赖 numpy / rclpy，Pi、Jetson、Mac 都能跑）。
 
 链参数与 01-simulation/mecharm_grasp/ros_node.py 的 CHAIN / T_FLANGE 完全一致，
@@ -53,6 +56,7 @@ CHAIN = [
 T_FLANGE = make_T([0, 0, 0.038], [1.579, 0, 0])  # link6 -> gripper_base
 
 
+# 【讲解】正运动学：六个关节角 → link6 与夹爪基座的 4x4 位姿
 def fk(q_rad):
     """返回 (link6 位姿 4x4, gripper_base 位姿 4x4)，基座坐标系。"""
     T = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
@@ -61,6 +65,7 @@ def fk(q_rad):
     return T, matmul(T, T_FLANGE)
 
 
+# 【讲解】指尖位置 = 夹爪基座沿工具轴前伸 tool_offset；同时返回工具轴方向
 def tip_pos(q_rad, tool_offset):
     """指尖位置与工具接近轴（基座系）：gripper_base 原点沿 link6 z 轴前伸 tool_offset。"""
     T6, Tg = fk(q_rad)
@@ -69,6 +74,7 @@ def tip_pos(q_rad, tool_offset):
     return p, axis
 
 
+# 【讲解】工具轴与竖直向下的夹角，逆解模式要求约 15° 以内
 def tilt_deg(axis):
     """工具轴与竖直向下的夹角（度）。任务节点的 IK 要求约 <=15°。"""
     d = max(-1.0, min(1.0, -axis[2]))
@@ -91,6 +97,7 @@ def rad_to_deg(rads, signs=None, offsets=None):
     return [math.degrees(v) * s + o for v, s, o in zip(rads, signs, offsets)]
 
 
+# 【讲解】把"要转多少度 / 用几秒"换成 pymycobot 的速度百分比，夹在 [5, max_speed]
 def speed_percent(delta_deg, duration_s, max_speed, min_speed=5):
     """把「多少度 / 多少秒」换成 pymycobot 的速度百分比，夹在 [min_speed, max_speed]。"""
     duration_s = max(0.5, float(duration_s))
@@ -98,6 +105,7 @@ def speed_percent(delta_deg, duration_s, max_speed, min_speed=5):
     return int(max(min_speed, min(int(max_speed), round(pct))))
 
 
+# 【讲解】任务节点发的夹爪弧度离 open 近就是开(0)，离 close 近就是合(1)
 def gripper_state(rad, open_rad, close_rad):
     """夹爪关节角 -> 0 开 / 1 合：离哪个标定值近就取哪个。"""
     return 0 if abs(rad - open_rad) <= abs(rad - close_rad) else 1

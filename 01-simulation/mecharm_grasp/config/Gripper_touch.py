@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# 【讲解】标定工具（仿真专用、一次性）：测"夹爪该合到多少度"。
+# 手指从全开逐步合拢，用方块里程计检测它第一次被碰动的角度，再多合一点就是有效夹持角，写进 grasp.yaml 的 gripper_close。平时不用跑。
 """夹爪触碰角标定探针（仿真专用）。
 
 用法：先 `ros2 launch mecharm_grasp sim.launch.py gui:=false task:=false`

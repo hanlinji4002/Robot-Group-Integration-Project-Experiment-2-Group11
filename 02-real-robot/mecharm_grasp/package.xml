@@ -1,4 +1,12 @@
 <?xml version="1.0"?>
+<!--
+【讲解】ROS 2 功能包的"身份证"。
+- name = mecharm_grasp：colcon 靠这个名字识别包，launch 里 get_package_share_directory('mecharm_grasp') 也用它。
+- exec_depend：运行时依赖。rclpy 写节点；control_msgs/trajectory_msgs 是轨迹动作的消息类型；
+  xacro 展开机械臂模型；controller_manager 是 ros2_control 的控制器管理器；ros_gz_bridge 桥接 Gazebo 与 ROS；
+  mycobot_description 是厂商官方模型包（网格文件从它来）。
+- build_type = ament_python：纯 Python 包，按 setup.py 安装。
+-->
 <package format="3">
   <name>mecharm_grasp</name>
   <version>0.1.0</version>

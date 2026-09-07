@@ -1,3 +1,6 @@
+# 【讲解】arm_server.py 的客户端：每次发一行 JSON、收一行 JSON。
+# call() 负责连接、超时、断线重连一次；下面的 goto/gripper/soft/hold/record 等只是把命令名和参数包一下。
+# 讲解要点：goto 是同步的，臂到位服务端才回复，所以套接字超时要比运动时间长；soft/hold 因固件回执慢给了 45 s。
 """arm_server.py 的客户端（纯标准库）。每行一条 JSON，阻塞等回复。"""
 import json
 import socket
@@ -8,6 +11,7 @@ class ArmError(RuntimeError):
     pass
 
 
+# 【讲解】一条 TCP 连接对应一个实例；驱动里用两个实例（运动 / 状态）避免互相阻塞
 class ArmClient:
     def __init__(self, host, port=9001, timeout=10.0):
         self.host, self.port, self.timeout = host, int(port), float(timeout)
@@ -27,6 +31,7 @@ class ArmClient:
             finally:
                 self._sock = None
 
+    # 【讲解】发送一条命令并等回复；ok=false 时抛 ArmError，调用方据此判失败
     def call(self, cmd, sock_timeout=None, **kw):
         """发一条命令，返回服务端 JSON；ok 为 false 时抛 ArmError。
         sock_timeout 是本端套接字等待上限；协议里的 timeout 字段原样放在 kw 里传给服务端。"""
@@ -62,6 +67,7 @@ class ArmClient:
     def get_angles(self):
         return self.call("get_angles")
 
+    # 【讲解】同步移动到六个角度，服务端到位（或超时）才返回角度与残差
     def goto(self, angles, speed, timeout=20.0, tol=1.5):
         """同步移动：服务端到位（或超时）才回复，套接字超时留出余量。"""
         req = {"angles": [float(a) for a in angles], "speed": int(speed),

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# 【讲解】早期纯脚本路线的综合测试工具（现已由 ROS 2 路线取代，留作点动/排错）。
+# 用法 python3 armtest2.py <命令>，九个命令见下方各分支注释。成败一律看读回角度。
 # mechArm 270-Pi 真机测试工具 v2 —— 基于 pymycobot 3.6.3 的 MechArm270 类
 # （老版 armtest.py 用的 MyCobot 类与重刷后的固件协议不合，运动指令会被固件丢弃）
 # 用法:
@@ -39,9 +41,11 @@ def show():
 
 cmd = sys.argv[1] if len(sys.argv) > 1 else "read"
 
+# 【讲解】只读：角度、编码器、坐标，最安全
 if cmd == "read":
     show()
 
+# 【讲解】某关节转 D 度再转回，用读回角度判断指令有没有生效
 elif cmd == "nod":
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 1
     d = float(sys.argv[3]) if len(sys.argv) > 3 else 5.0
@@ -61,6 +65,7 @@ elif cmd == "nod":
     print("回位:", read_angles())
     print(">>> J%d %s" % (n, "动了 ✔" if moved else "没动 ✘"))
 
+# 【讲解】六关节同步回零并报残差
 elif cmd == "zero":
     sp = int(sys.argv[2]) if len(sys.argv) > 2 else 15
     print("起始:", read_angles())
@@ -78,6 +83,7 @@ elif cmd == "zero":
         err = [round(abs(x), 2) for x in a1]
         print("各关节残差:", err, "最大:", max(err))
 
+# 【讲解】六关节移动到指定角度（谨慎）
 elif cmd == "move":
     if len(sys.argv) < 8:
         sys.exit("用法: move j1 j2 j3 j4 j5 j6 [speed]")
@@ -89,6 +95,7 @@ elif cmd == "move":
     time.sleep(4)
     print("到达:", read_angles())
 
+# 【讲解】夹爪开/合/指定开度
 elif cmd == "grip":
     arg = sys.argv[2] if len(sys.argv) > 2 else "open"
     if arg in ("open", "close"):
@@ -102,6 +109,7 @@ elif cmd == "grip":
     except Exception:
         pass
 
+# 【讲解】松 J1–J5 力矩，可手动摆位
 elif cmd == "soft":
     ok = True
     for j in range(1, 6):
@@ -113,6 +121,7 @@ elif cmd == "soft":
             print("release_servo", j, "失败:", e)
     print("J1-J5已松，可手动摆位（J6/夹爪保持刚性）" if ok else "部分失败，注意扶稳")
 
+# 【讲解】恢复全部力矩
 elif cmd == "hold":
     for j in range(1, 7):
         try:
@@ -123,6 +132,7 @@ elif cmd == "hold":
     time.sleep(0.3)
     print("力矩已恢复，当前姿势:", read_angles())
 
+# 【讲解】把当前角度存成示教点
 elif cmd == "record":
     name = sys.argv[2] if len(sys.argv) > 2 else "unnamed"
     a = read_angles()
@@ -132,6 +142,7 @@ elif cmd == "record":
     json.dump(data, open(fn, "w"), indent=1)
     print("已记录", name, "=", a)
 
+# 【讲解】急停 + 全松（臂会变软下坠）
 elif cmd == "release":
     mc.stop()
     mc.release_all_servos()

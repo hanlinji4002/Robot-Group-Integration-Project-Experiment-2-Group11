@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 【讲解】抓取流程 2 的任务节点，是 ros_node.py 的独立副本，只有节点名不同（grasp_task2），
+# 配 grasp2.yaml / theWorld2.sdf / sim2.launch.py 使用。两套流程互不影响，改一份不动另一份。
+# 讲解代码逻辑时以 ros_node.py 为准，注释都在那边。
 """抓取流程 2（独立副本）。与流程 1 完全不共享代码，改这里不影响 ros_node.py。
 
 定点抓取任务节点（状态机）。

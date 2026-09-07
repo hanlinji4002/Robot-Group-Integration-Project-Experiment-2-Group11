@@ -1,3 +1,5 @@
+# 【讲解】真机一键启动：先起 real_driver（连臂内服务），4 s 后起任务节点 grasp_task（与仿真同一份程序，只换参数文件）。
+# 任务节点退出时整个 launch 一起退出，退出码 0，所以可以用 && 把多次运行串起来。参数：cycles 次数、host 臂内地址、log_dir 日志目录。
 """真机（Jetson + mechArm 270）定点抓取一键启动。
 
 启动：真机驱动（mecharm_real/real_driver，经 TCP 调臂内 arm_server.py）

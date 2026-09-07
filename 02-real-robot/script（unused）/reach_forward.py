@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 【讲解】纯脚本：从零位往前探出（J2 正 = 前倾，J3 负 = 前臂展开），当初用来验证关节方向。
 # 往前探：从零位把臂向前伸出（J2 正=前倾，J3 负=前臂展开）
 # 用法: python3 reach_forward.py [速度]        默认速度 15
 #       python3 reach_forward.py 15 j1 j2 j3 j4 j5 j6   自定义目标角

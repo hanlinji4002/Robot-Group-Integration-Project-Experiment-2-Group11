@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 【讲解】纯脚本示教放置点 B。ROS 路线用 ros2 run mecharm_real teach b 代替。
 # 示教放置点 B：变软 -> 手摆 -> 记录 at_b -> 恢复力矩
 # 用法: python3 teach_b.py
 from arm_common import teach_point

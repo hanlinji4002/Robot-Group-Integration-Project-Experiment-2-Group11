@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# 【讲解】示教工具，跑在 Jetson（纯标准库，不需要 rclpy）。
+# 流程：张开夹爪 → 变软（release_servo J1–J5）→ 人手把臂摆到位 → 回车记录关节角 → 恢复力矩。
+# apply 时把 at_a/at_b 关节角写进 real.yaml（use_taught_joints: true，任务节点直接回放这些角度），
+# 同时用与任务节点相同的正运动学算出对应坐标写进 point_a/point_b 供参考。
+# 讲解要点：示教点存在臂内 taught_points.json；恢复力矩在这台固件上要约 10 s，所以有重试。
 """示教工具（Jetson 侧，纯标准库，不需要 rclpy）。
 
 通过臂内 arm_server.py 完成「变软 -> 手摆 -> 记录 -> 恢复力矩」，
@@ -37,6 +42,7 @@ AT_A_LIFT, AT_B_LIFT = 0.002, 0.008
 MAX_TILT = 15.0   # 任务节点 IK 允许的工具轴倾角
 
 
+# 【讲解】通过 ament 找到已安装的 real.yaml 路径（symlink-install 下就是源码里那份）
 def default_yaml():
     try:
         from ament_index_python.packages import get_package_share_directory
@@ -50,6 +56,7 @@ def read_yaml_scalar(text, key, default):
     return float(m.group(1)) if m else default
 
 
+# 【讲解】示教关节角 → 指尖坐标（减去任务节点在 point 上叠加的抬升量），并算工具轴倾角与工作半径
 def convert(name, angles_deg, tool_offset, lift):
     q = deg_to_rad(angles_deg)
     p, axis = tip_pos(q, tool_offset)
@@ -57,6 +64,7 @@ def convert(name, angles_deg, tool_offset, lift):
     return point, tilt_deg(axis), reach(p)
 
 
+# 【讲解】打印一个示教点的换算结果与告警（告警只影响逆解模式）
 def report(name, angles, tool_offset, lift):
     point, tilt, r = convert(name, angles, tool_offset, lift)
     flags = []
@@ -69,6 +77,7 @@ def report(name, angles, tool_offset, lift):
     return point, flags
 
 
+# 【讲解】交互式示教一个点：开爪 → 变软 → 等人摆位 → 记录 → 恢复力矩（失败重试 3 次）
 def teach_one(cli, name, tip):
     print('[0] 张开夹爪，先套住目标物再教')
     cli.gripper(0)
@@ -94,6 +103,7 @@ def teach_one(cli, name, tip):
     return resp['angles']
 
 
+# 【讲解】子命令 a / b 示教，show 查看，apply 写入 real.yaml
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('what', choices=['a', 'b', 'show', 'apply'])

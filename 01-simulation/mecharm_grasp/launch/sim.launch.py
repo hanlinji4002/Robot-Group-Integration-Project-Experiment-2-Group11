@@ -1,3 +1,8 @@
+# 【讲解】一键启动整个仿真系统（验收要求：单一 launch 文件）。启动顺序：
+#   Gazebo 世界 → 桥接时钟/方块话题 → robot_state_publisher（xacro 展开模型、发布 TF）→ 在桌面上生成机器人
+#   → 生成完成后依次拉起 joint_state_broadcaster、arm_controller、hand_controller → 最后启动任务节点 grasp_task。
+# 参数：gui:=false 无头运行；task:=false 只开仿真不跑任务（标定用）。
+# 讲解要点：所有文件路径都用 get_package_share_directory 在运行时解析，所以源码目录怎么摆都不影响。
 """一键启动完整仿真系统（验收要求：单一 Launch 文件）。
 
 启动内容：Gazebo Fortress 世界 → 机器人生成 → ros2_control 控制器

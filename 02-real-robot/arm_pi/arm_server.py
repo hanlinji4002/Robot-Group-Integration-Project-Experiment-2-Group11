@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# 【讲解】臂内 TCP 服务，跑在机械臂里的树莓派上（舵机接在它的串口上，所以只能在这里驱动）。
+# 把 arm_common.py 的功能包成"每行一条 JSON"的协议：ping / get_angles / goto / gripper / stop / soft / hold / record / points。
+# Jetson 上的 real_driver 与 teach 都通过它操作臂，自己不碰串口。
+# 结构：FakeArm 假臂（--fake 时用，无臂联调）→ LockedArm 给串口加锁（运动中允许穿插读角度/急停）→ handle 分发命令 → serve_conn 收发行。
+# 讲解要点：goto 到位才回复；gripper 发完读回开合值，没动就重发最多 3 次（这台固件偶尔丢帧）。
 # 臂内 TCP 服务：把 arm_common.py 的功能包成「每行一条 JSON」的协议，
 # 供 Jetson 上的 ROS 2 驱动（mecharm_real/real_driver）远程调用。
 # 臂的限位、直发角度、示教存点全部沿用 arm_common，本文件只做转发。
@@ -32,6 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 
+# 【讲解】假臂：角度按速度线性逼近目标，夹爪/力矩只记状态；接口与 MechArm270 用到的子集一致
 class FakeArm:
     """假臂：角度按速度线性逼近目标；夹爪、力矩只记状态。接口与 MechArm270 用到的子集一致。"""
     MAX_DPS = 120.0  # 官方规格最大关节速度 120°/s，speed 为百分比
@@ -97,6 +103,7 @@ class FakeArm:
         return 1
 
 
+# 【讲解】没装 pymycobot 的机器上注入桩模块，让 arm_common 能被 import（只在 --fake 时用）
 def install_fake_pymycobot():
     """没装 pymycobot 的机器上（Mac）注入桩模块，让 arm_common 能被 import。"""
     class ProtocolCode:
@@ -110,6 +117,7 @@ def install_fake_pymycobot():
     sys.modules["pymycobot.common"] = common
 
 
+# 【讲解】给 pymycobot 对象的每次方法调用加锁：串口不能并发，但允许一个连接在运动、另一个连接读角度
 class LockedArm:
     """给 pymycobot 对象每个方法调用加锁：串口不能并发，但允许「运动中」穿插「读角度」。"""
 
@@ -136,6 +144,7 @@ def err(msg):
     return {"ok": False, "error": msg}
 
 
+# 【讲解】起服务：解析参数 → 连臂（或假臂）→ 监听端口 → 每个连接一个线程
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", default="0.0.0.0")

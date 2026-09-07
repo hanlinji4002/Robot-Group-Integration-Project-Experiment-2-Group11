@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
+<!--
+【讲解】真机驱动包的"身份证"，包名 mecharm_real。依赖 rclpy、control_msgs 等 ROS 消息包，
+以及仿真包 mecharm_grasp（任务节点在那边）。build_type=ament_python。
+-->
 <package format="3">
   <name>mecharm_real</name>
   <version>0.1.0</version>

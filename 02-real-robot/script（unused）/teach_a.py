@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 【讲解】纯脚本示教取物点 A，调 arm_common.teach_point 存到 taught_points.json。ROS 路线用 ros2 run mecharm_real teach a 代替。
 # 示教取物点 A：变软 -> 手摆 -> 记录 at_a -> 恢复力矩
 # 用法: python3 teach_a.py
 from arm_common import teach_point

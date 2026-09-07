@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 【讲解】纯脚本：六关节回零并判定残差是否 < 1°。ROS 路线里回零由任务节点完成，此脚本留作单独测试。
 # 六关节回零并报残差
 # 用法: python3 go_zero.py [速度]   默认速度 15
 import sys

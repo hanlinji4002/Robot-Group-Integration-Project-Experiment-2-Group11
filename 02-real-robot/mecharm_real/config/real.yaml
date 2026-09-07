@@ -1,3 +1,6 @@
+# 【讲解】真机参数（验收时使用的版本）。上半段 grasp_task 是任务节点的参数，下半段 mecharm_real_driver 是驱动的参数。
+# 与仿真 grasp.yaml 的差别：use_sim_time/sim_check/sim_attach 关掉；use_taught_joints 打开并带示教关节角；alternate_direction 往返模式；
+# move_duration 放慢；驱动 max_speed 限 20。改这里不用重新编译。
 # 真机（Jetson + mechArm 270）定点抓取参数。
 # 任务节点与仿真共用同一个 ros_node.py，验收要求：切真机只改设备、通信和位置参数。
 grasp_task:

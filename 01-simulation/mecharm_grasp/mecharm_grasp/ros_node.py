@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+# 【讲解】抓取任务节点 —— 整个实验的"大脑"。仿真与真机共用这一份代码。
+# 整体流程：启动 → 等控制器 → 规划路径点 → 循环 N 次「回零→张爪→到取物点上方→下降→夹取→抬升→到放置点上方→下降→释放→抬升→回零」→ 写日志。
+# 文件分四块：
+#   ① 运动学（fk / tip_pos / solve_ik / align_jaw）：把"夹爪要到哪个坐标"算成"六个关节各转多少度"。
+#   ② 节点初始化：声明参数（A/B 点、安全高度、夹爪角、次数、日志目录……），建动作客户端、订阅关节状态、打开日志文件。
+#   ③ 运动指令（_send_traj / move_arm / move_gripper）：把关节角打包成 FollowJointTrajectory 动作发给控制器，等它执行完。
+#   ④ 任务状态机（plan_waypoints / run_task / one_cycle / _do_grasp / _do_release）：按步骤执行并记录成败。
+# 讲解要点：
+#   - 节点只跟"动作服务器"说话（/arm_controller、/hand_controller），仿真里由 ros2_control 提供，真机由 real_driver 提供，所以切真机不用改这里。
+#   - 不可达判定在 plan_waypoints：超出工作半径或逆解无解 → 输出错误、任务不启动（验收要求）。
+#   - 关节限位在 _send_traj 再查一遍，超限拒发（验收要求）。
+#   - 日志四个文件：trajectory.csv（每帧关节角）、results.csv（每轮成败）、errors.log（错误）、summary.txt（汇总）。
+#   - 两个开关：alternate_direction 往返模式（奇数轮 A→B、偶数轮 B→A）；use_taught_joints 示教回放（真机直接用示教关节角，不做逆解）。
 """定点抓取任务节点（状态机）。
 
 流程：回零 → A点上方 → 下降 → 夹取 → 抬升 → B点上方 → 下降 → 释放 → 回零。
@@ -49,6 +62,7 @@ JOINT_LIMITS = [
 
 # ---------- 运动学：链参数照抄 URDF 的 joint origin ----------
 
+# 【讲解】欧拉角(roll,pitch,yaw) -> 3x3 旋转矩阵，URDF 里 origin 的 rpy 就是这个约定
 def rpy_mat(r, p, y):
     cr, sr, cp, sp, cy, sy = math.cos(r), math.sin(r), math.cos(p), math.sin(p), math.cos(y), math.sin(y)
     return np.array([
@@ -57,6 +71,7 @@ def rpy_mat(r, p, y):
         [-sp, cp * sr, cp * cr]])
 
 
+# 【讲解】平移+旋转 -> 4x4 齐次变换矩阵，链式相乘就能算出末端位置
 def make_T(xyz, rpy):
     T = np.eye(4)
     T[:3, :3] = rpy_mat(*rpy)
@@ -83,6 +98,7 @@ def rz(q):
     return T
 
 
+# 【讲解】正运动学：给六个关节角，算出 link6 与夹爪基座在基座坐标系的位姿。CHAIN 里的数值直接抄自官方 URDF
 def fk(q):
     """返回 (link6 位姿 4x4, gripper_base 位姿 4x4)，基座坐标系。"""
     T = np.eye(4)
@@ -91,12 +107,14 @@ def fk(q):
     return T, T @ T_FLANGE
 
 
+# 【讲解】指尖位置 = 夹爪基座原点沿工具接近轴再前伸 tool_offset（虎口中心）
 def tip_pos(q, tool_offset):
     """指尖位置（基座系）：gripper_base 原点沿 link6 z 轴（工具接近轴）前伸。"""
     T6, Tg = fk(q)
     return Tg[:3, 3] + T6[:3, 2] * tool_offset, T6[:3, 2]
 
 
+# 【讲解】数值逆解：从多个初值出发做牛顿迭代，让指尖到目标点且工具轴接近竖直向下；都收敛不了就返回 None = 不可达
 def solve_ik(target, tool_offset, seed=None, iters=250):
     """数值 IK：指尖到 target，工具轴接近竖直向下（允许 ≤ ~15° 倾角，
     小臂行程有限，严格竖直会把大量桌面区域判为不可达）。
@@ -139,6 +157,7 @@ def solve_ik(target, tool_offset, seed=None, iters=250):
     return min(solutions, key=lambda s: np.linalg.norm(s - q_ref))
 
 
+# 【讲解】转 J6 让虎口对齐方块的面，斜着夹会把方块挤出去
 def align_jaw(q):
     """调整腕转角 q6，使夹爪开合方向（gripper_base x 轴）对齐世界坐标轴。
     方块的面沿世界轴摆放，虎口若斜着合拢会怼在棱角上把物体挤出去。
@@ -162,6 +181,7 @@ def align_jaw(q):
     return q
 
 
+# 【讲解】任务节点类。__init__ 只做准备工作（参数、通信、日志），真正的动作在 run_task 线程里跑
 class GraspTask(Node):
     def __init__(self):
         super().__init__('grasp_task')
@@ -228,16 +248,19 @@ class GraspTask(Node):
         self.worker.start()
 
     # ---------- 基础设施 ----------
+    # 【讲解】打印一条状态并发布到 /grasp_status 话题，方便外部监听
     def status(self, text):
         self.get_logger().info(text)
         self.status_pub.publish(String(data=text))
 
+    # 【讲解】出错统一走这里：打印、写 errors.log、发布 ERROR 状态
     def fail(self, text):
         self.get_logger().error(text)
         self.err_file.write(f'{datetime.now().isoformat()} {text}\n')
         self.err_file.flush()
         self.status_pub.publish(String(data='ERROR: ' + text))
 
+    # 【讲解】每收到一帧 /joint_states 就记下当前关节角，并写一行 trajectory.csv
     def _on_js(self, msg):
         for n, p in zip(msg.name, msg.position):
             self.joint_q[n] = p
@@ -247,6 +270,7 @@ class GraspTask(Node):
             self.traj_file.write(f'{t:.3f},' + ','.join(row) + '\n')
 
     # ---------- 运动指令 ----------
+    # 【讲解】发一条只有一个目标点的轨迹给控制器，先查关节限位，再等动作结果；超时或失败都返回 False
     def _send_traj(self, client, joints, positions, duration):
         for j, p in zip(joints, positions):
             if j in ARM_JOINTS:
@@ -288,13 +312,16 @@ class GraspTask(Node):
             return False
         return True
 
+    # 【讲解】六关节移动，duration 是这段动作的时长
     def move_arm(self, q, duration=None):
         return self._send_traj(self.arm_cli, ARM_JOINTS, q, duration or self.move_dur)
 
+    # 【讲解】夹爪移动，只有一个关节 gripper_controller
     def move_gripper(self, pos):
         return self._send_traj(self.hand_cli, [GRIPPER_JOINT], [pos], self.grip_dur)
 
     # ---------- 仿真吸附搬运 ----------
+    # 【讲解】仿真专用：调 Gazebo 服务把方块瞬移到某处（轮间复位用）
     def _set_object_pose(self, xyz):
         req = (f'name: "target_object", position: {{x: {xyz[0]:.4f}, '
                f'y: {xyz[1]:.4f}, z: {xyz[2]:.4f}}}')
@@ -327,6 +354,7 @@ class GraspTask(Node):
         cmd.linear.x, cmd.linear.y, cmd.linear.z = float(v[0]), float(v[1]), float(v[2])
         self.obj_vel_pub.publish(cmd)
 
+    # 【讲解】仿真专用：读方块的真实位置，用来判断这一轮是否真的放到了 B 点
     def object_world_pose(self):
         """读取物体真值位姿，用于成功判定（仿真专用）。"""
         try:
@@ -345,6 +373,7 @@ class GraspTask(Node):
         return None
 
     # ---------- 主任务 ----------
+    # 【讲解】真机示教回放：取物/放置直接用示教关节角，"上方点"= J2 往回收 lift_deg，放置点比取物点再高 place_lift_deg；只查限位不做逆解
     def _plan_from_taught(self):
         """示教回放模式：pick/place 直接用示教关节角，上方点 = J2 回收 lift_deg，不做逆解。
         仍做关节限位检查；超限 → 任务拒绝启动。"""
@@ -369,6 +398,7 @@ class GraspTask(Node):
         wp['home'] = np.zeros(6)
         return wp
 
+    # 【讲解】开跑前一次性算好所有路径点的关节角；任一点超半径或无逆解 → 任务拒绝启动
     def plan_waypoints(self):
         """启动时对全部路径点求逆解；任一点无解 → 不可达，任务拒绝启动。
         use_taught_joints=true 时改为直接回放示教关节角。"""
@@ -406,6 +436,7 @@ class GraspTask(Node):
         wp['home'] = np.zeros(6)
         return wp
 
+    # 【讲解】任务入口（后台线程），异常兜底
     def run_task(self):
         try:
             self._run_task_impl()
@@ -415,6 +446,7 @@ class GraspTask(Node):
             self.get_logger().info('任务节点退出')
             rclpy.try_shutdown()
 
+    # 【讲解】主循环：等控制器 → 等关节状态 → 规划 → N 轮抓取 → 写 summary。往返模式下成功后不复位物体
     def _run_task_impl(self):
         time.sleep(2.0)
         self.status('等待控制器上线...')
@@ -457,6 +489,7 @@ class GraspTask(Node):
         self.traj_file.close()
         self.res_file.close()
 
+    # 【讲解】仿真专用：把方块放回下一轮的取物点；真机什么都不做
     def _reset_object(self, target=None):
         tgt = self.point_a if target is None else target
         if self.sim_check:
@@ -471,6 +504,7 @@ class GraspTask(Node):
                     return
             self.fail('物体复位到取物点失败')
 
+    # 【讲解】一轮抓取的 11 个步骤，任一步失败立即返回 False 并记 results.csv；forward 决定 A→B 还是 B→A
     def one_cycle(self, cycle, wp, forward=True):
         """forward=True：A 取 B 放；False：B 取 A 放（往返模式的偶数轮）。"""
         src, dst = ('a', 'b') if forward else ('b', 'a')
@@ -509,6 +543,7 @@ class GraspTask(Node):
         self.res_file.flush()
         return placed
 
+    # 【讲解】夹取：真机就是合爪；仿真早期用过"吸附"方案，现已停用（sim_attach=false）
     def _do_grasp(self):
         # 顺序：先吸附定住物体，再闭合到"环抱不接触"的角度（笼抱式）。
         # 手指与物体全程零接触——接触力会与吸附伺服互相对抗，
@@ -525,6 +560,7 @@ class GraspTask(Node):
             self.attach_on = True
         return True
 
+    # 【讲解】释放：张爪。仿真吸附相关分支已停用
     def _do_release(self):
         # 顺序：物体已随手臂降到桌面高度（at_b 工具目标只比静置中心高 2mm）
         # → 静置片刻让吸附伺服把它收敛到 B 点正上方 → 停止吸附（物体已
@@ -543,6 +579,7 @@ class GraspTask(Node):
         return self.move_gripper(self.grip_open)
 
 
+# 【讲解】程序入口：初始化 ROS、创建节点、多线程执行器一直转，Ctrl+C 退出
 def main():
     rclpy.init()
     node = GraspTask()

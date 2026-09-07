@@ -1,3 +1,9 @@
+# 【讲解】ros2_control 控制器配置（仿真里"关节怎么被驱动"）。
+# - controller_manager：控制周期 100 Hz，登记三个控制器。
+# - joint_state_broadcaster：把关节角发布到 /joint_states。
+# - arm_controller：六个手臂关节的轨迹控制器，接收任务节点发的 FollowJointTrajectory 动作；constraints 是到位判定的容差。
+# - hand_controller：夹爪关节的轨迹控制器。
+# 讲解要点：任务节点只认这两个控制器的名字，真机驱动也照这两个名字提供接口。
 # ros2_control 控制器配置。
 # update_rate 取 100Hz：软渲染容器里够用且省 CPU，真机 mechArm 串口带宽也到不了更高。
 controller_manager:

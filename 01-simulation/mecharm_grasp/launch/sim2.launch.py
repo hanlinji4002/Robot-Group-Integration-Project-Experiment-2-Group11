@@ -1,3 +1,4 @@
+# 【讲解】流程 2 的一键启动，与 sim.launch.py 相同，只换了世界文件 theWorld2.sdf、参数 grasp2.yaml、任务节点 grasp_task2。
 """一键启动仿真系统 —— 抓取流程 2（独立于 sim.launch.py，互不影响）。
 
 启动内容：Gazebo Fortress 世界 → 机器人生成 → ros2_control 控制器

@@ -1,3 +1,5 @@
+# 【讲解】安装规则：把 mecharm_real/ 目录装成 Python 模块；launch/ 与 config/ 装进 share；
+# entry_points 定义两个命令：real_driver -> real_driver.py 的 main()，teach -> teach.py 的 main()。
 import os
 from glob import glob
 from setuptools import setup

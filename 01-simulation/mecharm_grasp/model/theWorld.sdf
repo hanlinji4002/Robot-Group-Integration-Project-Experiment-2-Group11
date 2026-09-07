@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
 <!--
+【讲解】Gazebo 仿真世界（流程 1）。
+- 三个系统插件：Physics 物理、SceneBroadcaster 场景广播、UserCommands 用户命令（launch 里的"瞬移方块"要靠它）。
+- table：静态实心桌子，桌面高 0.75 m，机器人生成在桌面上（launch 里 z=0.75）。
+- target_object：25 mm、50 g 的红色方块，高摩擦系数，带 OdometryPublisher 插件供任务节点读它的真实位置做成功判定。
+讲解要点：方块初始位姿必须与 grasp.yaml 的 point_a 一致，否则夹空。
+-->
+<!--
   抓取实验场景：地面 + 桌子 + 目标物。
   机械臂由 launch 文件用 ros_gz_sim 的 create 动态生成（放在桌面上），
   这样机器人模型只维护一份 URDF，不用在 SDF 里重复。
