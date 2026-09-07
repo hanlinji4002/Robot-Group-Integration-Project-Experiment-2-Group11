@@ -81,8 +81,16 @@ def teach_one(cli, name, tip):
         return None
     resp = cli.record(name)
     print('  已记录 %s = %s' % (name, resp['angles']))
-    input('[3] 即将恢复力矩（臂会在当前位置锁住） [回车继续] ')
-    cli.hold()
+    input('[3] 即将恢复力矩（臂会在当前位置锁住，可能要十几秒，期间继续扶着） [回车继续] ')
+    for attempt in (1, 2, 3):
+        try:
+            cli.hold()
+            print('  力矩已恢复，可以松手')
+            break
+        except ArmError as e:
+            print('  恢复力矩第 %d 次未收到回执（%s），臂可能仍是软的，继续扶住，重试...' % (attempt, e))
+    else:
+        print('  !!! 三次都没回执。先别松手，在臂内运行: python3 /home/er/armtest2.py hold')
     return resp['angles']
 
 

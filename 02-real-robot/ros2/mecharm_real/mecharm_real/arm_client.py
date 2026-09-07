@@ -75,16 +75,17 @@ class ArmClient:
         return self.call("gripper_value", sock_timeout=8.0, value=int(value))
 
     def stop(self):
-        return self.call("stop")
+        return self.call("stop", sock_timeout=15.0)
 
+    # 松/锁力矩每个舵机一条指令，新固件回执慢，臂内可能要十几秒，套接字超时放宽
     def soft(self):
-        return self.call("soft")
+        return self.call("soft", sock_timeout=45.0)
 
     def hold(self):
-        return self.call("hold")
+        return self.call("hold", sock_timeout=45.0)
 
     def record(self, name):
-        return self.call("record", name=name)
+        return self.call("record", sock_timeout=20.0, name=name)
 
     def points(self):
         return self.call("points")["points"]
