@@ -191,9 +191,26 @@ def main():
                 return err("运动后读不到角度")
             return {"ok": True, "angles": a, "err": e}
         if cmd == "gripper":
+            # 新固件偶尔会丢夹爪帧：发完读回开合值，没动就重发，最多 3 次；
+            # 判"动了"用相对量（比发指令前变化 >=10）或绝对量（合 <=40 / 开 >=60），
+            # 这样夹住物体停在中间值也算合上了
             st = 1 if int(req.get("state", 0)) else 0
-            ac.gripper(mc, st, "合" if st else "开")
-            return {"ok": True, "value": safe(mc.get_gripper_value)}
+            before = safe(mc.get_gripper_value)
+            def reached(v):
+                if v is None:
+                    return False
+                if st:
+                    return v <= 40 or (before is not None and v <= before - 10)
+                return v >= 60 or (before is not None and v >= before + 10)
+            tries = 0
+            v = None
+            while tries < 4:
+                tries += 1
+                ac.gripper(mc, st, ("合" if st else "开") + ("" if tries == 1 else "(重发%d)" % (tries - 1)))
+                v = safe(mc.get_gripper_value)
+                if reached(v):
+                    break
+            return {"ok": True, "value": v, "before": before, "reached": bool(reached(v)), "tries": tries}
         if cmd == "gripper_value":
             v = max(0, min(100, int(req.get("value", 50))))
             mc.set_gripper_value(v, 50)

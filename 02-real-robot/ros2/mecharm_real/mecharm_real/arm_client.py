@@ -69,7 +69,7 @@ class ArmClient:
         return self.call("goto", sock_timeout=float(timeout) + 5.0, **req)
 
     def gripper(self, state):
-        return self.call("gripper", sock_timeout=8.0, state=int(state))
+        return self.call("gripper", sock_timeout=25.0, state=int(state))
 
     def gripper_value(self, value):
         return self.call("gripper_value", sock_timeout=8.0, value=int(value))

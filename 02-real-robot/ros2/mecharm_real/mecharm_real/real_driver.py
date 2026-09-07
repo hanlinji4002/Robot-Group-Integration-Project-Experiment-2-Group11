@@ -164,9 +164,14 @@ class MechArmRealDriver(Node):
         t0 = time.time()
         with self.busy:
             try:
-                self.motion.gripper(state)   # 臂内会等 2s 再回
+                resp = self.motion.gripper(state)   # 臂内会等 2s 读回，没动会重发
             except ArmError as e:
                 return self._result(gh, False, f'夹爪通信异常: {e}')
+        if resp.get('reached') is False:
+            return self._result(gh, False, f"夹爪未动作（指令 {'合' if state else '开'}，"
+                                           f"读值 {resp.get('before')}→{resp.get('value')}，共发 {resp.get('tries')} 次）")
+        if resp.get('tries', 1) > 1:
+            self.get_logger().warn(f"夹爪指令重发 {resp['tries'] - 1} 次才动作（读值 {resp.get('before')}→{resp.get('value')}）")
         remain = self._duration(pt) - (time.time() - t0)
         if remain > 0:
             time.sleep(remain)
