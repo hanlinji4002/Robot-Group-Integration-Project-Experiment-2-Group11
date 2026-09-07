@@ -11,7 +11,7 @@
 - Mac 的作用是**远程登录进去下命令**，Mac 上不装也不跑这些脚本
 - Mac 和机械臂之间只有一根网线，Mac 直接指挥不了舵机
 
-臂内 `/home/er/` 有和本目录 `scripts/` 同名的五个脚本，内容一致。
+臂内 `/home/er/` 有和本目录 `arm_pi/`、`script（unused）/` 同名的文件，内容一致。
 
 ---
 
@@ -20,34 +20,36 @@
 ```
 02-real-robot/
 ├── README.md
-├── scripts/                     在臂内树莓派上运行（/home/er/ 有同名副本）
-│   ├── arm_common.py            公共库：连接串口、读角度坐标、自定限位、直发角度、同步移动报残差、示教存点
-│   ├── arm_server.py            TCP 服务：把 arm_common 包成 JSON 协议给 Jetson 的 ROS 2 驱动调用（--fake 可无臂联调）
-│   ├── armtest2.py              综合测试工具，九个子命令，见第五节
-│   ├── go_zero.py               六关节回零并判定残差
-│   ├── reach_forward.py         从零位往前探出
-│   ├── demo_seq.py              连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
-│   ├── teach_a.py / teach_b.py  纯脚本示教 A / B 点，存到 taught_points.json
-│   └── pick_place.py            纯脚本版定点抓取（不走 ROS，用示教点直接跑）
-└── ros2/mecharm_real/           在 Jetson 上编译运行的 ROS 2 包（验收要求的「相同 ROS 2 接口」走这里）
-    ├── package.xml / setup.py / setup.cfg / resource/
-    ├── mecharm_real/
-    │   ├── real_driver.py       真机驱动节点：对任务节点提供与仿真 ros2_control 一样的动作/话题，底层经 TCP 调 arm_server
-    │   ├── arm_client.py        arm_server 的客户端（纯标准库）
-    │   ├── kinematics.py        与仿真任务节点同一套正运动学，示教关节角 -> 取放点坐标
-    │   └── teach.py             示教工具：变软 -> 手摆 -> 记录 -> 恢复力矩，再换算写进 real.yaml
-    ├── config/real.yaml         真机参数：取放点、安全高度、速度上限、臂内服务地址
-    └── launch/real.launch.py    一键启动：驱动 + 仿真同一份任务节点
+├── orderForReal.txt              完整操作命令单（示教 → 单次 → 多次往返 → 结果 → 急停）
+├── mecharm_real/                 Jetson 上的 ROS 2 包（整个拷进 ros2_ws/src 即可编译）
+│   ├── mecharm_real/
+│   │   ├── real_driver.py        真机驱动：对任务节点提供与仿真 ros2_control 相同的动作/话题，底层经 TCP 调臂内 arm_server
+│   │   ├── teach.py              示教：变软 → 手摆 → 记录 → 恢复力矩，换算后写进 real.yaml
+│   │   ├── arm_client.py         arm_server 的 TCP 客户端（纯标准库）
+│   │   └── kinematics.py         正运动学（与任务节点同参数）
+│   ├── config/real.yaml          真机参数：示教好的 A/B 关节角、往返模式、速度上限、臂内服务地址
+│   ├── launch/real.launch.py     一键启动：驱动 + 任务节点，跑完自动退出
+│   └── package.xml / setup.py / setup.cfg / resource/
+├── mecharm_grasp/                任务节点副本（与 01-simulation 同一份 ros_node.py；编译时用 01-simulation 的完整包）
+│   ├── mecharm_grasp/ros_node.py
+│   └── package.xml / setup.py
+├── arm_pi/                       臂内树莓派 /home/er 上运行的文件
+│   ├── arm_server.py             TCP 服务：把 arm_common 包成 JSON 协议给 Jetson 调用（--fake 可无臂联调）
+│   ├── arm_common.py             串口连接、自定限位、直发角度、同步移动报残差、示教存点
+│   └── taught_points.json        示教点原始记录
+└── script（unused）/             早期纯脚本路线（不走 ROS），留作示教/点动/排错工具
+    ├── armtest2.py               综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
+    ├── go_zero.py / reach_forward.py / demo_seq.py
+    └── teach_a.py / teach_b.py / pick_place.py
 ```
 
-**两条路线，用途不同：**
+**两条路线：**
 
-| | 纯脚本（scripts/） | ROS 2（ros2/mecharm_real） |
+| | ROS 2（mecharm_real + arm_pi） | 纯脚本（script（unused）） |
 |---|---|---|
-| 跑在哪 | 臂内树莓派 | Jetson（臂内只跑 arm_server.py） |
-| 用途 | 示教、点动、排错、快速演示 | 验收：与仿真相同的 ROS 2 接口、同一份任务节点 |
-| 任务逻辑 | 每个脚本自己写 | 复用 01-simulation 的 ros_node.py，一行不改 |
-| 依赖 | pymycobot 3.6.3 | ROS 2 Humble + 01-simulation 的 mecharm_grasp 包 |
+| 跑在哪 | Jetson（臂内只跑 arm_server.py） | 臂内树莓派 |
+| 用途 | 验收：与仿真相同的 ROS 2 接口、同一份任务节点 | 示教、点动、排错 |
+| 任务逻辑 | 复用 01-simulation 的 ros_node.py，一行不改 | 每个脚本自己写 |
 
 ## 二、连接机械臂
 
@@ -284,12 +286,12 @@ kill $(cat /home/er/arm_server.pid)
 
 ### 第 2 步：Jetson 编译
 
-把 `ros2/mecharm_real` 拷进和仿真包同一个工作区（任务节点在仿真包里）。
+把 `mecharm_real` 拷进和仿真包同一个工作区（任务节点在仿真包里）。
 Jetson 上这个工作区是 `~/Desktop/exp2_sim_ws`，里面已有 `mecharm_grasp` 和 `mecharm_real`，
 `~/mecharm_ws` 只作底层依赖（官方描述包、gz_ros2_control）：
 
 ```
-cp -r 02-real-robot/ros2/mecharm_real ~/Desktop/exp2_sim_ws/src/
+cp -r 02-real-robot/mecharm_real ~/Desktop/exp2_sim_ws/src/
 cd ~/Desktop/exp2_sim_ws && source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && colcon build --symlink-install
 source install/setup.bash
 ```

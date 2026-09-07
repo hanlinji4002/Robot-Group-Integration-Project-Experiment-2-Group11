@@ -2,4 +2,4 @@
 !01-simulation/results/flow3/
 .DS_Store
 __pycache__/
-*taught_points*.json
+*taught_points_fake*.json

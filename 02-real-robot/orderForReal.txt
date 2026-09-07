@@ -1,6 +1,6 @@
 ========================================
 真机定点抓取 · 完整流程（ROS 2 路线）
-Jetson 上操作；代码在 ~/Desktop/exp2_sim_ws/src/{mecharm_grasp,mecharm_real}
+Jetson 上操作；代码在 ~/Desktop/exp2_sim_ws/src/{mecharm_grasp,mecharm_real}（仓库 02-real-robot/mecharm_real，臂内文件在 02-real-robot/arm_pi）
 ========================================
 
 【0. 接线】 Mac ──USB── Jetson(192.168.55.1) ──网线── 臂内树莓派(10.42.0.89)

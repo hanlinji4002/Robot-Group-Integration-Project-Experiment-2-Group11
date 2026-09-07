@@ -31,10 +31,6 @@
 5. 用**一个 Launch 文件**启动仿真、控制和状态节点。
 6. 对不可达目标、无逆解、关节超限等情况进行判断并安全停止。
 
-### 运行结果
-<img width="560" height="314" alt="flow3-demo" src="https://github.com/user-attachments/assets/b008b038-a910-478e-972b-21ce09a9039a" />
-
-
 ## 阶段二：真机验证
 
 ### 任务
@@ -82,11 +78,14 @@
 │
 └── 02-real-robot/          mechArm 270-Pi 真机阶段
     ├── README.md            连接说明、Mac 操作步骤、ROS 2 路线、常见问题
-    ├── scripts/             臂内树莓派上跑：arm_common、arm_server、armtest2、go_zero、reach_forward、demo_seq、teach_a/b、pick_place
-    └── ros2/mecharm_real/   Jetson 上跑的 ROS 2 包：real_driver（与仿真相同接口）、teach（示教）、real.yaml、real.launch.py
+    ├── orderForReal.txt     完整操作命令单
+    ├── mecharm_real/        Jetson 上跑的 ROS 2 包：real_driver（与仿真相同接口）、teach（示教）、real.yaml、real.launch.py
+    ├── mecharm_grasp/       任务节点副本（与仿真同一份 ros_node.py）
+    ├── arm_pi/              臂内树莓派上跑：arm_server、arm_common、taught_points.json
+    └── script（unused）/    早期纯脚本路线，留作示教/点动/排错工具
 ```
 
-流程 3 的完整验收日志和 Gazebo 演示已上传至 [01-simulation/results/flow3/](01-simulation/results/flow3/)，结果为 5/5；流程 1/2 验收数据未上传。Flow3 页面可直接查看 GIF，也可下载原始 MP4。
+流程 3 的完整验收日志已上传至 [01-simulation/results/flow3/](01-simulation/results/flow3/)，结果为 5/5；流程 1/2 验收数据未上传。视频不纳入仓库。
 
 ## 三套抓取流程
 

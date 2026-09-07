@@ -10,14 +10,14 @@ grasp_task:
     # 取物点 A / 放置点 B（基座系，m）。不要手填：
     # 先 ros2 run mecharm_real teach a / b 示教，再 teach apply 自动换算写入。
     # 下面两行是占位值（与仿真同一布局），只是让未示教前也能干跑。
-    point_a: [0.12, 0.08, 0.0135]
-    point_b: [0.12, -0.08, 0.0135]
+    point_a: [0.2329, 0.0936, 0.0145]
+    point_b: [0.2035, -0.1324, -0.0078]
 
     # 示教回放（真机默认走这条）：直接回放示教关节角，不做逆解，不受"工具轴要竖直"的限制。
     # 由 teach apply 自动填写并打开；改成 false 则退回用 point_a/point_b 逆解
-    use_taught_joints: false
-    at_a_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    at_b_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    use_taught_joints: true
+    at_a_joints_deg: [21.53, 42.36, 13.09, -2.54, -12.74, -0.26]
+    at_b_joints_deg: [-33.83, 46.31, 13.0, -5.18, -13.0, 0.61]
     lift_deg: 25.0          # 上方点 = 示教点的 J2 往回收这么多度（垂直抬起）
     place_lift_deg: 3.0     # 放置点比取物点少压这么多度（约 13 mm），松爪时手指不顶桌面
 
