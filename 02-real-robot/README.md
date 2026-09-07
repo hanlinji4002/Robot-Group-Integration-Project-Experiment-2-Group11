@@ -264,22 +264,40 @@ Jetson                                          机械臂里的树莓派
 
 ### 第 1 步：臂内起服务
 
-登录机械臂后：
+登录机械臂后，后台启动并记下进程号：
 
 ```
-python3 /home/er/arm_server.py
+setsid python3 /home/er/arm_server.py > /home/er/arm_server.log 2>&1 < /dev/null & echo $! > /home/er/arm_server.pid
+tail -2 /home/er/arm_server.log
 ```
 
-看到 `监听 0.0.0.0:9001` 就行，这个终端别关。它负责把 Jetson 发来的指令转给舵机。
+看到 `监听 0.0.0.0:9001` 就行。它负责把 Jetson 发来的指令转给舵机，之后可以退出这个终端。
+
+停止它：
+
+```
+kill $(cat /home/er/arm_server.pid)
+```
+
+⚠️ 服务运行期间它占着串口，**不能同时跑 armtest2.py、go_zero.py 这些直连脚本**，会互相抢串口。
+要用直连脚本先把服务停掉，用完再起。
 
 ### 第 2 步：Jetson 编译
 
-把 `ros2/mecharm_real` 拷进和仿真包同一个工作区（任务节点在仿真包里）：
+把 `ros2/mecharm_real` 拷进和仿真包同一个工作区（任务节点在仿真包里）。
+Jetson 上这个工作区是 `~/Desktop/exp2_sim_ws`，里面已有 `mecharm_grasp` 和 `mecharm_real`，
+`~/mecharm_ws` 只作底层依赖（官方描述包、gz_ros2_control）：
 
 ```
 cp -r 02-real-robot/ros2/mecharm_real ~/Desktop/exp2_sim_ws/src/
 cd ~/Desktop/exp2_sim_ws && source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && colcon build --symlink-install
 source install/setup.bash
+```
+
+每开一个新终端都要先加载三层环境：
+
+```
+source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && source ~/Desktop/exp2_sim_ws/install/setup.bash
 ```
 
 Jetson 要能连到臂内服务：把臂的网线接到 Jetson 网口（`arm-share` 共享模式下臂是 `10.42.0.89`），
@@ -324,7 +342,14 @@ ros2 topic pub --once /soft_stop std_msgs/msg/Bool "data: true"
 
 ### 没有臂也能联调
 
-`arm_server.py --fake` 会起一个假臂（角度按速度线性逼近），Jetson 上照常跑 launch，用来验证整条 ROS 链路。
+`arm_server.py --fake` 会起一个假臂（角度按速度线性逼近），Jetson 上照常跑 launch，用来验证整条 ROS 链路：
+
+```
+python3 ~/Desktop/exp2_real_scripts/arm_server.py --fake &
+ros2 launch mecharm_real real.launch.py host:=127.0.0.1 cycles:=1
+```
+
+2026-09-07 已在 Jetson 上实测：假臂一轮 11 步全部经驱动执行，日志正常。
 
 ### 和验收条款的对应
 
