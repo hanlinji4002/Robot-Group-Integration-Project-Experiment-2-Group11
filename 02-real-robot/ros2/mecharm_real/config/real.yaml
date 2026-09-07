@@ -19,6 +19,7 @@ grasp_task:
     at_a_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     at_b_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     lift_deg: 25.0          # 上方点 = 示教点的 J2 往回收这么多度（垂直抬起）
+    place_lift_deg: 1.5     # 放置点比取物点少压这么多度（约 6 mm），松爪时手指不顶桌面
 
     # 安全高度（m）
     safe_height: 0.05

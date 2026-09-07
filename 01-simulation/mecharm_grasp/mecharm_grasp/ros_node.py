@@ -177,6 +177,8 @@ class GraspTask(Node):
             # 示教回放（真机）：直接回放示教关节角，不做逆解；上方点 = J2 回收 lift_deg
             ('use_taught_joints', False), ('at_a_joints_deg', [0.0] * 6),
             ('at_b_joints_deg', [0.0] * 6), ('lift_deg', 25.0),
+            # 放置点比取物点高一点（J2 少压这么多度，约 6 mm），松爪时手指不顶桌面，能张全
+            ('place_lift_deg', 1.5),
         ]:
             self.declare_parameter(name, default)
         g = lambda n: self.get_parameter(n).value
@@ -196,6 +198,7 @@ class GraspTask(Node):
         self.use_taught = bool(g('use_taught_joints'))
         self.at_a_deg, self.at_b_deg = list(g('at_a_joints_deg')), list(g('at_b_joints_deg'))
         self.lift_deg = float(g('lift_deg'))
+        self.place_lift_deg = float(g('place_lift_deg'))
         self.log_dir = os.path.expanduser(g('log_dir'))
         os.makedirs(self.log_dir, exist_ok=True)
 
@@ -353,7 +356,9 @@ class GraspTask(Node):
             q = np.radians(np.array(degs, dtype=float))
             up = q.copy()
             up[1] -= math.radians(self.lift_deg)
-            for name, qq in ((f'pick_{key}', q), (f'place_{key}', q), (f'above_{key}', up)):
+            place = q.copy()
+            place[1] -= math.radians(self.place_lift_deg)
+            for name, qq in ((f'pick_{key}', q), (f'place_{key}', place), (f'above_{key}', up)):
                 for j, (lo, hi) in enumerate(JOINT_LIMITS):
                     if not (lo - 1e-6 <= qq[j] <= hi + 1e-6):
                         self.fail(f'示教点 {name} 关节 {ARM_JOINTS[j]} {math.degrees(qq[j]):.1f}° 超限，任务停止')
