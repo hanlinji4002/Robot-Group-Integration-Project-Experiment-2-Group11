@@ -172,6 +172,8 @@ class GraspTask(Node):
             ('move_duration', 2.5), ('grip_duration', 1.2), ('cycles', 5),
             ('log_dir', '/ws/grasp_logs'), ('world_name', 'grasp_world'),
             ('sim_attach', True), ('sim_check', True),
+            # 往返模式：奇数轮 A→B、偶数轮 B→A，物体不用人工放回；仿真默认关
+            ('alternate_direction', False),
         ]:
             self.declare_parameter(name, default)
         g = lambda n: self.get_parameter(n).value
@@ -187,6 +189,7 @@ class GraspTask(Node):
         self.sim_attach = bool(g('sim_attach'))
         # 仿真里用 Gazebo 位姿真值做成功判定与轮间复位；真机置 false
         self.sim_check = bool(g('sim_check'))
+        self.alternate = bool(g('alternate_direction'))
         self.log_dir = os.path.expanduser(g('log_dir'))
         os.makedirs(self.log_dir, exist_ok=True)
 
@@ -341,11 +344,15 @@ class GraspTask(Node):
         # at_a 比物体静置中心高 2mm（指垫对准方块中部）；
         # at_b 高 8mm：实抓时方块在指间比模型低 1-2mm，太低会提前触桌
         # 顶住手臂（曾在放置下降步超时中止），放置时从几毫米高度自然落下
+        # 两个点各算三个路径点：上方、取物高度(+0.002)、放置高度(+0.008)，
+        # 这样 A→B 与 B→A 都能走同一套流程
         specs = {
             'above_a': a_local + [0, 0, self.safe_h],
-            'at_a': a_local + [0, 0, 0.002],
+            'pick_a': a_local + [0, 0, 0.002],
+            'place_a': a_local + [0, 0, 0.008],
             'above_b': b_local + [0, 0, self.safe_h],
-            'at_b': b_local + [0, 0, 0.008],
+            'pick_b': b_local + [0, 0, 0.002],
+            'place_b': b_local + [0, 0, 0.008],
         }
         seed = None
         for name, tgt in specs.items():
@@ -392,8 +399,9 @@ class GraspTask(Node):
 
         success_count = 0
         for cycle in range(1, self.cycles + 1):
-            self.status(f'===== 第 {cycle}/{self.cycles} 次抓取 =====')
-            ok = self.one_cycle(cycle, wp)
+            forward = (not self.alternate) or (cycle % 2 == 1)
+            self.status(f'===== 第 {cycle}/{self.cycles} 次抓取（{"A→B" if forward else "B→A"}）=====')
+            ok = self.one_cycle(cycle, wp, forward)
             if ok:
                 success_count += 1
             else:
@@ -401,7 +409,11 @@ class GraspTask(Node):
                 self.attach_on = False
                 self.move_arm(wp['home'])
             if cycle < self.cycles:
-                self._reset_object()
+                next_forward = (not self.alternate) or ((cycle + 1) % 2 == 1)
+                if self.alternate and ok:
+                    pass  # 往返模式：物体已经放在下一轮的取物点，不用复位
+                else:
+                    self._reset_object(self.point_a if next_forward else self.point_b)
         summary = f'任务完成：{self.cycles} 次抓取成功 {success_count} 次'
         self.status(summary)
         with open(os.path.join(self.log_dir, 'summary.txt'), 'w') as f:
@@ -409,47 +421,52 @@ class GraspTask(Node):
         self.traj_file.close()
         self.res_file.close()
 
-    def _reset_object(self):
+    def _reset_object(self, target=None):
+        tgt = self.point_a if target is None else target
         if self.sim_check:
             for _ in range(4):
                 try:
-                    self._set_object_pose(self.point_a)
+                    self._set_object_pose(tgt)
                 except Exception:
                     pass
                 time.sleep(0.5)
                 if (self.obj_pos is not None
-                        and np.linalg.norm(self.obj_pos[:2] - self.point_a[:2]) < 0.01):
+                        and np.linalg.norm(self.obj_pos[:2] - tgt[:2]) < 0.01):
                     return
-            self.fail('物体复位到 A 点失败')
+            self.fail('物体复位到取物点失败')
 
-    def one_cycle(self, cycle, wp):
+    def one_cycle(self, cycle, wp, forward=True):
+        """forward=True：A 取 B 放；False：B 取 A 放（往返模式的偶数轮）。"""
+        src, dst = ('a', 'b') if forward else ('b', 'a')
+        label = 'A→B' if forward else 'B→A'
         steps = [
             ('回零', lambda: self.move_arm(wp['home'])),
             ('张开夹爪', lambda: self.move_gripper(self.grip_open)),
-            ('到达取物点上方', lambda: self.move_arm(wp['above_a'])),
-            ('下降', lambda: self.move_arm(wp['at_a'], self.move_dur * 0.6)),
+            ('到达取物点上方', lambda: self.move_arm(wp[f'above_{src}'])),
+            ('下降', lambda: self.move_arm(wp[f'pick_{src}'], self.move_dur * 0.6)),
             ('夹取', self._do_grasp),
-            ('抬升', lambda: self.move_arm(wp['above_a'], self.move_dur * 0.6)),
-            ('移动到放置点上方', lambda: self.move_arm(wp['above_b'])),
-            ('下降到放置点', lambda: self.move_arm(wp['at_b'], self.move_dur * 0.6)),
+            ('抬升', lambda: self.move_arm(wp[f'above_{src}'], self.move_dur * 0.6)),
+            ('移动到放置点上方', lambda: self.move_arm(wp[f'above_{dst}'])),
+            ('下降到放置点', lambda: self.move_arm(wp[f'place_{dst}'], self.move_dur * 0.6)),
             ('释放', self._do_release),
-            ('抬升离开', lambda: self.move_arm(wp['above_b'], self.move_dur * 0.6)),
+            ('抬升离开', lambda: self.move_arm(wp[f'above_{dst}'], self.move_dur * 0.6)),
             ('回零', lambda: self.move_arm(wp['home'])),
         ]
         for name, fn in steps:
             self.status(f'[{cycle}] {name}')
             if not fn():
-                self.res_file.write(f'{cycle},0,,,,失败于步骤:{name}\n')
+                self.res_file.write(f'{cycle},0,,,,{label} 失败于步骤:{name}\n')
                 self.res_file.flush()
                 return False
         if not self.sim_check:
             # 真机：没有物体位姿真值，全部步骤走完即计成功，落点由现场人工核对
-            self.res_file.write(f'{cycle},1,,,,完成（落点需人工确认）\n')
+            self.res_file.write(f'{cycle},1,,,,{label} 完成（落点需人工确认）\n')
             self.res_file.flush()
             return True
+        target = self.point_b if forward else self.point_a
         pos = self.object_world_pose()
-        placed = pos is not None and np.linalg.norm(pos[:2] - self.point_b[:2]) < 0.03
-        detail = 'ok' if placed else '物体不在放置区'
+        placed = pos is not None and np.linalg.norm(pos[:2] - target[:2]) < 0.03
+        detail = f'{label} ok' if placed else f'{label} 物体不在放置区'
         self.res_file.write(f'{cycle},{1 if placed else 0},'
                             + (f'{pos[0]:.4f},{pos[1]:.4f},{pos[2]:.4f}' if pos is not None else ',,')
                             + f',{detail}\n')

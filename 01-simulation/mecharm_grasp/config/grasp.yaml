@@ -32,6 +32,8 @@ grasp_task:
 
     # 连续抓取次数（验收：5 次至少成功 4 次）
     cycles: 5
+    # 往返模式：true 时奇数轮 A→B、偶数轮 B→A，物体不用复位。仿真保持 false
+    alternate_direction: false
 
     # 日志输出目录（轨迹 CSV / 结果 / 错误日志），~ 会展开为用户主目录
     log_dir: "~/mecharm_ws/grasp_logs"

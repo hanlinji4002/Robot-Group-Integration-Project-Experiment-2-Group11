@@ -334,6 +334,11 @@ ros2 launch mecharm_real real.launch.py
 结果在 `~/grasp_logs_real/`，格式和仿真完全一样（results.csv / summary.txt / trajectory.csv / errors.log）。
 真机没有物体位姿真值，每次全部步骤走完即计成功，落点由现场人工核对并记录。
 
+**往返模式（默认开）**：`real.yaml` 里 `alternate_direction: true`，奇数轮 A→B、偶数轮 B→A，
+物体放下后正好在下一轮的取物点，5 轮中间不用人手放回。`cycles: 5` 就是 5 次抓取、每次都计入 results.csv，
+说明栏会标 `A→B` / `B→A`。某轮失败时下一轮仍按顺序走，物体在哪由现场人放回对应点。
+想恢复"每轮都从 A 取、放到 B"就把它改成 false。
+
 软件急停（另开终端，硬件急停优先）：
 
 ```

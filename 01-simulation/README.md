@@ -39,14 +39,13 @@
 │       ├── sim2.launch.py          一键启动流程 2
 │       └── sim3.launch.py           一键启动流程 3
 └── results/                        验收数据（流程 1/2 数据未上传）
-    └── flow3/                      流程 3 完整一轮：5/5 成功及演示媒体
+    └── flow3/                      流程 3 完整一轮：5/5 成功，不含录像
         ├── README.md               验收参数、结果与复现命令
         ├── results.csv             每次抓取结果与落点
         ├── summary.txt             成功次数汇总
         ├── trajectory.csv          关节轨迹记录
         ├── errors.log              任务异常日志（本轮为空）
-        ├── launch-recorded.log     完整启动、抓取与退出日志
-        └── media/                  README 动图与原始 MP4 演示
+        └── launch-recorded.log     完整启动、抓取与退出日志
 ```
 
 ---
@@ -180,7 +179,7 @@ cat ~/grasp_logs3/results.csv
 ```
 
 看画面先设置 `export DISPLAY=:1`，再用 `gui:=true`。新增 Flow3 文件后须先按第五节重新编译。
-本轮完整 5 次均成功，日志和直接播放的 GIF 演示见 [results/flow3/](results/flow3/)。此流程仅在 Gazebo 中验证。
+本轮完整 5 次均成功，日志见 [results/flow3/](results/flow3/)。此流程仅在 Gazebo 中验证。
 
 ⚠️ **三套应逐套运行**，Gazebo 和控制器话题会互相打架。跑完一套、清理干净，再跑另一套。
 
@@ -210,6 +209,7 @@ cat ~/grasp_logs3/results.csv
 | `safe_height` | 搬运时抬多高（米） |
 | `move_duration` | 每段动作用几秒，越大越慢 |
 | `gripper_close` | 夹爪合多紧 |
+| `alternate_direction` | 往返模式：true 时奇数轮 A→B、偶数轮 B→A，物体不复位；仿真默认 false |
 
 **改方块位置** → 要**同时改两个文件**，里面的位置数字必须一致，否则机械臂会抓空：
 

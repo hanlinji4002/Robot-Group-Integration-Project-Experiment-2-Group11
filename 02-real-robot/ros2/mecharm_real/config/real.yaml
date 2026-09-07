@@ -28,6 +28,8 @@ grasp_task:
     grip_duration: 2.0
 
     cycles: 5
+    # 往返模式：奇数轮 A→B、偶数轮 B→A，物体不用人工放回；cycles=5 即 5 次抓取
+    alternate_direction: true
     log_dir: "~/grasp_logs_real"
 
     # 真机关键开关：不用 Gazebo 真值，吸附逻辑停用，落点由现场人工核对
