@@ -138,3 +138,5 @@
 | **机械臂本体或夹爪的结构** | `model/arm_model.xacro` | 连杆、关节限位、惯量、碰撞体 |
 | **桌面、目标方块的位置或尺寸** | `model/theWorld.sdf` | 注意方块的初始位姿必须与 `grasp.yaml` 的 `point_a` 保持一致 |
 | **启动流程**：增删启动的节点、改默认参数 | `launch/sim.launch.py` | |
+
+> 最后更新：2026-09-07
