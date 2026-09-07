@@ -28,6 +28,11 @@ ros2 launch mecharm_real real.launch.py cycles:=1
 【5. 正式往返 6 次】（物体留在上一轮放下的位置即可，奇数轮 A→B、偶数轮 B→A）
 ros2 launch mecharm_real real.launch.py cycles:=6
 
+【5b. 分两段跑：前 4 次 + 中间停下摆正方块 + 第 5 次】（launch 跑完会自己退出，所以能用 && 串起来）
+ros2 launch mecharm_real real.launch.py cycles:=4 log_dir:=~/grasp_logs_real/run1 && read -p "把方块摆正到 A 点、夹爪张开，回车跑第 5 次 " && ros2 launch mecharm_real real.launch.py cycles:=1 log_dir:=~/grasp_logs_real/run2
+  合并成 5 行的成绩单：
+  (cat ~/grasp_logs_real/run1/results.csv; tail -n +2 ~/grasp_logs_real/run2/results.csv | sed 's/^1,/5,/') > ~/grasp_logs_real/results.csv && cat ~/grasp_logs_real/results.csv
+
 【6. 看结果】
 cat ~/grasp_logs_real/summary.txt && cat ~/grasp_logs_real/results.csv
   臂内夹爪读值：张开≈89，夹住方块≈45，空夹到底≈4；放下后张开<80 说明手指顶到了东西
@@ -46,7 +51,8 @@ cd ~/Desktop/exp2_sim_ws/src/mecharm_real && python3 -c "from mecharm_real.arm_c
   cycles            抓取次数
   alternate_direction  往返模式 true/false
   lift_deg          上方点 = 示教点 J2 往回收多少度（默认 25）
-  place_lift_deg    放置点比取物点少压多少度（默认 1.5≈6mm；放下后张不开就加大到 2.5）
+  place_lift_deg    放置点比取物点少压多少度（默认 3.0≈13mm；放下后张不开就再加大）
+  grip_hold_min/max 合爪读值在这个区间才算夹住（默认 20–60）；不在区间松开重夹一次，仍不行记失败
   move_duration / grip_duration   每段动作时长、夹爪时长（越大越慢）
   max_speed         驱动速度百分比上限（默认 20）
   at_a_joints_deg / at_b_joints_deg  示教关节角（teach apply 自动写，也可手改）

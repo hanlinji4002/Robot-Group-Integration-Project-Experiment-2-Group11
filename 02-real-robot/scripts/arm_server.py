@@ -78,7 +78,7 @@ class FakeArm:
         return 1
 
     def set_gripper_state(self, s, sp):
-        self.grip = 4 if s else 89
+        self.grip = 45 if s else 89   # 假臂：合爪当作夹住 25mm 方块
         return 1
 
     def set_gripper_value(self, v, sp):

@@ -19,7 +19,7 @@ grasp_task:
     at_a_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     at_b_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     lift_deg: 25.0          # 上方点 = 示教点的 J2 往回收这么多度（垂直抬起）
-    place_lift_deg: 1.5     # 放置点比取物点少压这么多度（约 6 mm），松爪时手指不顶桌面
+    place_lift_deg: 3.0     # 放置点比取物点少压这么多度（约 13 mm），松爪时手指不顶桌面
 
     # 安全高度（m）
     safe_height: 0.05
@@ -58,3 +58,7 @@ mecharm_real_driver:
     joint_offsets_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     gripper_open_rad: 0.0
     gripper_close_rad: -0.44
+    # 合爪读值判定：夹住 25mm 方块≈43–45；<20 夹空、>60 被挡/夹偏 → 松开重夹一次，仍不行判失败
+    grip_hold_min: 20
+    grip_hold_max: 60
+    open_min: 80            # 张开不到这个值再张一次

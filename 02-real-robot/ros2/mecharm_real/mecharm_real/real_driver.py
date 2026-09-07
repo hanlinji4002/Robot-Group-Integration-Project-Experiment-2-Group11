@@ -48,6 +48,8 @@ class MechArmRealDriver(Node):
             ('joint_signs', [1.0] * 6),
             ('joint_offsets_deg', [0.0] * 6),
             ('gripper_open_rad', 0.0), ('gripper_close_rad', -0.44),
+            # 合爪读值判定：夹住 25mm 方块≈43–45，空夹到底≈4，被挡住≈70+
+            ('grip_hold_min', 20), ('grip_hold_max', 60), ('open_min', 80),
         ]:
             self.declare_parameter(name, default)
         g = lambda n: self.get_parameter(n).value
@@ -55,6 +57,7 @@ class MechArmRealDriver(Node):
         self.tol = float(g('goal_tol_deg'))
         self.signs, self.offsets = list(g('joint_signs')), list(g('joint_offsets_deg'))
         self.g_open, self.g_close = float(g('gripper_open_rad')), float(g('gripper_close_rad'))
+        self.hold_min, self.hold_max, self.open_min = int(g('grip_hold_min')), int(g('grip_hold_max')), int(g('open_min'))
 
         host, port = str(g('arm_host')), int(g('arm_port'))
         self.motion = ArmClient(host, port, timeout=30.0)
@@ -170,10 +173,33 @@ class MechArmRealDriver(Node):
         if resp.get('reached') is False:
             return self._result(gh, False, f"夹爪未动作（指令 {'合' if state else '开'}，"
                                            f"读值 {resp.get('before')}→{resp.get('value')}，共发 {resp.get('tries')} 次）")
-        if state == 0 and isinstance(resp.get('value'), (int, float)) and resp['value'] < 80:
-            self.get_logger().warn(f"夹爪只张开到 {resp['value']}（正常约 89）：手指可能顶着桌面或物体，抬升时会拖动物体")
         if resp.get('tries', 1) > 1:
             self.get_logger().warn(f"夹爪指令重发 {resp['tries'] - 1} 次才动作（读值 {resp.get('before')}→{resp.get('value')}）")
+        v = resp.get('value')
+        if isinstance(v, (int, float)):
+            if state == 1 and not (self.hold_min <= v <= self.hold_max):
+                # 合爪读值不在"夹住物体"区间：被挡住/夹偏(>max) 或 夹空(<min)。松开再合一次，还不行判失败
+                self.get_logger().warn(f'合爪读值 {v} 不在 {self.hold_min}–{self.hold_max}，松开重夹一次')
+                try:
+                    with self.busy:
+                        self.motion.gripper(0)
+                        resp = self.motion.gripper(1)
+                except ArmError as e:
+                    return self._result(gh, False, f'夹爪通信异常: {e}')
+                v = resp.get('value')
+                if not (isinstance(v, (int, float)) and self.hold_min <= v <= self.hold_max):
+                    why = '夹空（物体不在取物点）' if isinstance(v, (int, float)) and v < self.hold_min else '被挡住或夹偏'
+                    return self._result(gh, False, f'夹取失败：合爪读值 {v}，{why}')
+            elif state == 0 and v < self.open_min:
+                # 张不全：手指还顶着物体/桌面，再张一次，仍不全只警告（物体多半已放下）
+                try:
+                    with self.busy:
+                        resp = self.motion.gripper(0)
+                except ArmError as e:
+                    return self._result(gh, False, f'夹爪通信异常: {e}')
+                v = resp.get('value')
+                if isinstance(v, (int, float)) and v < self.open_min:
+                    self.get_logger().warn(f'夹爪只张开到 {v}（正常≈89）：手指可能顶着桌面或物体，抬升时可能拖动物体')
         remain = self._duration(pt) - (time.time() - t0)
         if remain > 0:
             time.sleep(remain)
