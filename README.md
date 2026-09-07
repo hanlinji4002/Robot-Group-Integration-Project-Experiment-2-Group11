@@ -82,7 +82,7 @@
     └── ros2/mecharm_real/   Jetson 上跑的 ROS 2 包：real_driver（与仿真相同接口）、teach（示教）、real.yaml、real.launch.py
 ```
 
-流程 3 的完整验收日志已上传至 [01-simulation/results/flow3/](01-simulation/results/flow3/)，结果为 5/5；流程 1/2 验收数据未上传。视频不纳入仓库。
+流程 3 的完整验收日志和 Gazebo 演示已上传至 [01-simulation/results/flow3/](01-simulation/results/flow3/)，结果为 5/5；流程 1/2 验收数据未上传。Flow3 页面可直接查看 GIF，也可下载原始 MP4。
 
 ## 三套抓取流程
 

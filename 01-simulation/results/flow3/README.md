@@ -2,6 +2,12 @@
 
 2026-09-07 在 Jetson（Ubuntu 22.04、ROS 2 Humble、Gazebo Fortress）完成完整 5 次抓取仿真。
 
+## 运行演示
+
+![Flow3 Gazebo 抓取演示](media/flow3-demo.gif)
+
+GIF 可直接在 GitHub 页面中查看；[下载原始 MP4](media/flow3-demo.mp4) 可获得体积更小、画质更稳定的版本。
+
 ## 参数与结果
 
 | 项目 | 数值 |
@@ -28,8 +34,10 @@
 - `trajectory.csv`：带仿真时间戳的关节轨迹。
 - `errors.log`：任务异常日志，本轮为空。
 - `launch-recorded.log`：本轮从启动到退出的完整运行日志，包含启动警告和关闭信息。
+- `media/flow3-demo.gif`：README 内直接展示的 Flow3 动图。
+- `media/flow3-demo.mp4`：原始 MP4 演示视频。
 
-本目录保存完整一轮的原始日志，不包含视频、录屏脚本、未完成轮次或构建产物。本次未执行不可达、超限位等异常测试，因此不提供 `error_tests.txt`。
+本目录保存完整一轮的原始日志和 Flow3 演示媒体，不包含录屏脚本、未完成轮次或构建产物。本次未执行不可达、超限位等异常测试，因此不提供 `error_tests.txt`。
 
 ## 复现命令
 
