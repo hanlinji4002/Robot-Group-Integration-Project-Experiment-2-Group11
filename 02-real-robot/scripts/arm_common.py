@@ -11,8 +11,9 @@ def connect():
 def read6(fn, tries=5):
     for _ in range(tries):
         v = fn()
-        if v and len(v) == 6:
-            return v
+        # 固件没回数据时库会返回 -1/0 之类的整数，不是列表；当作没读到，继续重试
+        if isinstance(v, (list, tuple)) and len(v) == 6:
+            return list(v)
         time.sleep(0.4)
     return None
 
