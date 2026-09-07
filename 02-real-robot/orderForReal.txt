@@ -1,0 +1,55 @@
+========================================
+真机定点抓取 · 完整流程（ROS 2 路线）
+Jetson 上操作；代码在 ~/Desktop/exp2_sim_ws/src/{mecharm_grasp,mecharm_real}
+========================================
+
+【0. 接线】 Mac ──USB── Jetson(192.168.55.1) ──网线── 臂内树莓派(10.42.0.89)
+          Mac 连 Jetson: ssh nvidia@192.168.55.1    Jetson 连臂: ssh er@10.42.0.89
+
+【1. 臂内起服务】（臂每次重启后都要做一次；在臂内执行）
+setsid python3 /home/er/arm_server.py > /home/er/arm_server.log 2>&1 < /dev/null & echo $! > /home/er/arm_server.pid
+tail -2 /home/er/arm_server.log          # 看到 "监听 0.0.0.0:9001"
+  停止：kill $(cat /home/er/arm_server.pid)
+  注意：服务开着时不能同时跑 armtest2.py / go_zero.py / pick_place.py（抢串口）
+
+【2. Jetson 每开一个终端先加载环境】
+source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && source ~/Desktop/exp2_sim_ws/install/setup.bash
+
+【3. 示教】（变软时先用手扶住臂；提示"力矩已恢复，可以松手"再放手）
+ros2 run mecharm_real teach a          # 物体放在 A，夹爪张开套住它，回车记录
+ros2 run mecharm_real teach b          # 摆到放置位置，回车记录
+ros2 run mecharm_real teach show       # 看两个点（回放模式下倾角/半径告警可忽略）
+ros2 run mecharm_real teach apply      # 写进 real.yaml 并打开示教回放模式
+
+【4. 单次低速试跑】（物体放 A，夹爪张开；一人操作一人守急停）
+ros2 launch mecharm_real real.launch.py cycles:=1
+  顺序：回零 → 张爪 → A上方 → 下到A → 合爪 → 抬回 → B上方 → 下到B(高6mm) → 张爪 → 抬回 → 回零
+
+【5. 正式往返 6 次】（物体留在上一轮放下的位置即可，奇数轮 A→B、偶数轮 B→A）
+ros2 launch mecharm_real real.launch.py cycles:=6
+
+【6. 看结果】
+cat ~/grasp_logs_real/summary.txt && cat ~/grasp_logs_real/results.csv
+  臂内夹爪读值：张开≈89，夹住方块≈45，空夹到底≈4；放下后张开<80 说明手指顶到了东西
+
+【7. 急停】（另开终端；硬件急停优先）
+ros2 topic pub --once /soft_stop std_msgs/msg/Bool "data: true"
+
+【8. 单独回零】（需要先在另一个终端 ros2 run mecharm_real real_driver）
+ros2 action send_goal /arm_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{trajectory: {joint_names: [joint1_to_base, joint2_to_joint1, joint3_to_joint2, joint4_to_joint3, joint5_to_joint4, joint6_to_joint5], points: [{positions: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], time_from_start: {sec: 6, nanosec: 0}}]}}"
+  用完把 real_driver 那个终端 Ctrl+C，否则和 launch 的驱动冲突
+
+【9. 只开/合夹爪】
+cd ~/Desktop/exp2_sim_ws/src/mecharm_real && python3 -c "from mecharm_real.arm_client import ArmClient; print(ArmClient('10.42.0.89',9001).gripper(0))"   # 0 开 / 1 合
+
+【10. 可调参数】 ~/Desktop/exp2_sim_ws/src/mecharm_real/config/real.yaml（改完不用重新编译）
+  cycles            抓取次数
+  alternate_direction  往返模式 true/false
+  lift_deg          上方点 = 示教点 J2 往回收多少度（默认 25）
+  place_lift_deg    放置点比取物点少压多少度（默认 1.5≈6mm；放下后张不开就加大到 2.5）
+  move_duration / grip_duration   每段动作时长、夹爪时长（越大越慢）
+  max_speed         驱动速度百分比上限（默认 20）
+  at_a_joints_deg / at_b_joints_deg  示教关节角（teach apply 自动写，也可手改）
+
+【11. 清理】（异常退出后跑一次）
+for p in $(ps -eo pid,args | awk '$2 ~ /python3/ && /(real_driver|grasp_task|real\.launch)/ {print $1}'); do kill $p; done
