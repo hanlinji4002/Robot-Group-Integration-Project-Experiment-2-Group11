@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!--
-  抓取流程 3：反向对角搬运场景。
-  机械臂由 launch 文件动态生成；目标物初始位姿必须与 grasp_dc4008.yaml 的 A3 点一致。
+  liupinxin_grasp3：反向对角搬运场景。
+  机械臂由 launch 文件动态生成；目标物初始位姿必须与 grasp_liupinxin_grasp3.yaml 的 A3 点一致。
 -->
 <sdf version="1.8">
-  <world name="grasp_world_dc4008">
+  <world name="grasp_world_liupinxin_grasp3">
     <physics name="default" type="ignored">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
@@ -42,7 +42,7 @@
       </link>
     </model>
 
-    <!-- 目标物：25mm、50g 方块，初始位姿 = grasp_dc4008.yaml 的 A3 点。 -->
+    <!-- 目标物：25mm、50g 方块，初始位姿 = grasp_liupinxin_grasp3.yaml 的 A3 点。 -->
     <model name="target_object">
       <pose>0.075 -0.115 0.7635 0 0 0</pose>
       <plugin filename="libignition-gazebo-odometry-publisher-system.so" name="ignition::gazebo::systems::OdometryPublisher">
