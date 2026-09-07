@@ -36,6 +36,7 @@ setup(
             'grasp_task = mecharm_grasp.ros_node:main',
             'grasp_task2 = mecharm_grasp.ros_node2:main',
             'grasp_task3 = mecharm_grasp.ros_node3:main',
+            'grasp_task_Qi_Chu = mecharm_grasp.ros_node_Qi_Chu:main',
             # 标定脚本在 config/ 下，source 工作区后 python3 config/calib_*.py 直接运行
         ],
     },
