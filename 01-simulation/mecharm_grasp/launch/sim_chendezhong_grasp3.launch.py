@@ -1,4 +1,4 @@
-"""一键启动 liupinxin_grasp3 反向对角搬运流程。
+"""一键启动 chendezhong_grasp3（陈德中）反向对角搬运流程。
 
 复用已验证的 grasp_task 控制算法，通过节点重命名加载独立参数，
 并使用独立世界和日志目录，不影响流程 1/2。
@@ -17,10 +17,10 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     pkg = get_package_share_directory('mecharm_grasp')
-    world = os.path.join(pkg, 'worlds', 'theWorld_liupinxin_grasp3.sdf')
+    world = os.path.join(pkg, 'worlds', 'theWorld_chendezhong_grasp3.sdf')
     xacro_file = os.path.join(pkg, 'urdf', 'arm_model.xacro')
     controllers = os.path.join(pkg, 'config', 'controllers.yaml')
-    params = os.path.join(pkg, 'config', 'grasp_liupinxin_grasp3.yaml')
+    params = os.path.join(pkg, 'config', 'grasp_chendezhong_grasp3.yaml')
 
     gui = LaunchConfiguration('gui')
     desc_pkg = get_package_share_directory('mycobot_description')
@@ -71,7 +71,7 @@ def generate_launch_description():
 
     grasp = Node(
         package='mecharm_grasp', executable='grasp_task',
-        name='grasp_task_liupinxin_grasp3',
+        name='grasp_task_chendezhong_grasp3',
         parameters=[params], output='screen',
         condition=IfCondition(LaunchConfiguration('task')))
 

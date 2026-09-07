@@ -56,13 +56,13 @@
 │       │   ├── theWorld.sdf            仿真世界（流程 1）
 │       │   ├── theWorld2.sdf           仿真世界（流程 2）
 │       │   ├── theWorld3.sdf           仿真世界（流程 3）：方块初始位置为 A3
-│       │   └── theWorld_liupinxin_grasp3.sdf  仿真世界（liupinxin_grasp3 反向对角搬运）
+│       │   └── theWorld_chendezhong_grasp3.sdf  仿真世界（chendezhong_grasp3，陈德中）
 │       │
 │       ├── config/                     【参数设置】
 │       │   ├── grasp.yaml              抓取参数（流程 1）
 │       │   ├── grasp2.yaml             抓取参数（流程 2）
 │       │   ├── grasp3.yaml             抓取参数（流程 3）：A3/B3 点、独立日志目录和世界名
-│       │   ├── grasp_liupinxin_grasp3.yaml  抓取参数（liupinxin_grasp3）
+│       │   ├── grasp_chendezhong_grasp3.yaml  抓取参数（chendezhong_grasp3）
 │       │   ├── controllers.yaml        ros2_control 控制器配置
 │       │   ├── GripperCalc.py          标定工具中心
 │       │   └── Gripper_touch.py        标定夹爪闭合角
@@ -77,7 +77,7 @@
 │           ├── sim.launch.py           一键启动流程 1
 │           ├── sim2.launch.py          一键启动流程 2
 │           ├── sim3.launch.py          一键启动流程 3
-│           └── sim_liupinxin_grasp3.launch.py  一键启动 liupinxin_grasp3 流程
+│           └── sim_chendezhong_grasp3.launch.py  一键启动 chendezhong_grasp3 流程
 │
 └── 02-real-robot/                      真机阶段（Mac 网线直连臂内树莓派）
     ├── README.md                       文件结构、Mac 操作步骤、常见问题
@@ -93,10 +93,10 @@
 
 ## 四套抓取流程
 
-流程 1/2/3 分别维护独立控制节点；liupinxin_grasp3 流程通过节点重命名复用流程 1
+流程 1/2/3 分别维护独立控制节点；chendezhong_grasp3（陈德中）流程通过节点重命名复用流程 1
 已验证的控制算法，并使用独立参数、世界和日志目录。
 
-| | 流程 1 | 流程 2 | 流程 3 | liupinxin_grasp3 |
+| | 流程 1 | 流程 2 | 流程 3 | chendezhong_grasp3 |
 |---|---|---|---|---|
 | 取物点 A | [0.12, 0.08] | [0.137, 0.029] | [0.095, 0.095] | [0.075, -0.115] |
 | 放置点 B | [0.12, -0.08] | [0.052, -0.130] | [0.100, -0.090] | [0.125, 0.060] |
@@ -105,11 +105,11 @@
 | 验证状态 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 | Jetson 5/5 |
 
 启动命令使用 `sim.launch.py`、`sim2.launch.py`、`sim3.launch.py` 或
-`sim_liupinxin_grasp3.launch.py` 切换流程。表中 J1 幅度为 A/B 平面方位角差的近似值。
+`sim_chendezhong_grasp3.launch.py` 切换流程。表中 J1 幅度为 A/B 平面方位角差的近似值。
 
 ## 代码模块化说明
 
-仿真代码按职责拆成四个模块。四套场景数据与日志相互独立；liupinxin_grasp3 流程共享流程 1
+仿真代码按职责拆成四个模块。四套场景数据与日志相互独立；chendezhong_grasp3 流程共享流程 1
 的控制算法，算法修复会同时作用于这两个流程。
 
 **模型构建（`model/`）** 描述"机械臂长什么样、世界里有什么"。`arm_model.xacro` 是 mechArm 270 的模型，取自厂商公开的官方描述包，我们在其基础上补全了惯量、关节限位，并把夹爪的联动关节接进 ros2_control。`theWorld*.sdf` 是四套 Gazebo 仿真世界，均包含桌面、25 mm 的目标方块以及物理和里程计插件。
