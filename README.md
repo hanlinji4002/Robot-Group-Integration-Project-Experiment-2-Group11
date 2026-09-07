@@ -76,14 +76,10 @@
 │           ├── sim2.launch.py          一键启动流程 2
 │           └── sim3.launch.py           一键启动流程 3
 │
-└── 02-real-robot/                      真机阶段（Mac 网线直连臂内树莓派）
-    ├── README.md                       文件结构、Mac 操作步骤、常见问题
-    └── scripts/                        在臂内树莓派上运行的直连脚本
-        ├── arm_common.py               公共库：连接串口、读角度坐标、同步移动并报残差
-        ├── armtest2.py                 综合测试：读状态、点头判定、回零、移动、夹爪、示教、急停
-        ├── go_zero.py                  六关节回零并判定残差
-        ├── reach_forward.py            从零位往前探出
-        └── demo_seq.py                 连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
+└── 02-real-robot/          mechArm 270-Pi 真机阶段
+    ├── README.md            连接说明、Mac 操作步骤、ROS 2 路线、常见问题
+    ├── scripts/             臂内树莓派上跑：arm_common、arm_server、armtest2、go_zero、reach_forward、demo_seq、teach_a/b、pick_place
+    └── ros2/mecharm_real/   Jetson 上跑的 ROS 2 包：real_driver（与仿真相同接口）、teach（示教）、real.yaml、real.launch.py
 ```
 
 流程 3 的完整验收日志已上传至 [01-simulation/results/flow3/](01-simulation/results/flow3/)，结果为 5/5；流程 1/2 验收数据未上传。视频不纳入仓库。

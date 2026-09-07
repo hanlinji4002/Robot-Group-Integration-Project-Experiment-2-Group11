@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>mecharm_real</name>
+  <version>0.1.0</version>
+  <description>mechArm 270 真机驱动：对任务节点提供与仿真相同的 ROS 2 接口，底层经 TCP 调用臂内 arm_server.py</description>
+  <maintainer email="1990292743abc@gmail.com">robotic-group</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>trajectory_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>mecharm_grasp</exec_depend>
+
+  <export><build_type>ament_python</build_type></export>
+</package>

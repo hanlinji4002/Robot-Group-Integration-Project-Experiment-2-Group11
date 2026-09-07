@@ -20,15 +20,34 @@
 ```
 02-real-robot/
 ├── README.md
-└── scripts/                在臂内树莓派上运行的直连脚本
-    ├── arm_common.py       公共库：连接串口、读角度坐标、同步移动并报残差，被下面三个脚本调用，不单独运行
-    ├── armtest2.py         综合测试工具，九个子命令，见下方表格
-    ├── go_zero.py          六关节回零，并判定残差是否小于 1°
-    ├── reach_forward.py    从零位往前探出，目标角可在命令行覆盖
-    └── demo_seq.py         连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
+├── scripts/                     在臂内树莓派上运行（/home/er/ 有同名副本）
+│   ├── arm_common.py            公共库：连接串口、读角度坐标、自定限位、直发角度、同步移动报残差、示教存点
+│   ├── arm_server.py            TCP 服务：把 arm_common 包成 JSON 协议给 Jetson 的 ROS 2 驱动调用（--fake 可无臂联调）
+│   ├── armtest2.py              综合测试工具，九个子命令，见第五节
+│   ├── go_zero.py               六关节回零并判定残差
+│   ├── reach_forward.py         从零位往前探出
+│   ├── demo_seq.py              连贯演示：回零、深探、夹爪开合、J1 转 10°、回零
+│   ├── teach_a.py / teach_b.py  纯脚本示教 A / B 点，存到 taught_points.json
+│   └── pick_place.py            纯脚本版定点抓取（不走 ROS，用示教点直接跑）
+└── ros2/mecharm_real/           在 Jetson 上编译运行的 ROS 2 包（验收要求的「相同 ROS 2 接口」走这里）
+    ├── package.xml / setup.py / setup.cfg / resource/
+    ├── mecharm_real/
+    │   ├── real_driver.py       真机驱动节点：对任务节点提供与仿真 ros2_control 一样的动作/话题，底层经 TCP 调 arm_server
+    │   ├── arm_client.py        arm_server 的客户端（纯标准库）
+    │   ├── kinematics.py        与仿真任务节点同一套正运动学，示教关节角 -> 取放点坐标
+    │   └── teach.py             示教工具：变软 -> 手摆 -> 记录 -> 恢复力矩，再换算写进 real.yaml
+    ├── config/real.yaml         真机参数：取放点、安全高度、速度上限、臂内服务地址
+    └── launch/real.launch.py    一键启动：驱动 + 仿真同一份任务节点
 ```
 
----
+**两条路线，用途不同：**
+
+| | 纯脚本（scripts/） | ROS 2（ros2/mecharm_real） |
+|---|---|---|
+| 跑在哪 | 臂内树莓派 | Jetson（臂内只跑 arm_server.py） |
+| 用途 | 示教、点动、排错、快速演示 | 验收：与仿真相同的 ROS 2 接口、同一份任务节点 |
+| 任务逻辑 | 每个脚本自己写 | 复用 01-simulation 的 ros_node.py，一行不改 |
+| 依赖 | pymycobot 3.6.3 | ROS 2 Humble + 01-simulation 的 mecharm_grasp 包 |
 
 ## 二、连接机械臂
 
@@ -223,7 +242,101 @@ python3 /home/er/demo_seq.py 15
 
 ---
 
-## 四、armtest2.py 的九个命令
+## 四、ROS 2 路线：让真机复用仿真的任务节点
+
+实验要求写的是「使用与仿真阶段相同的 ROS 2 控制接口」「切真机只改设备、通信和位置参数，不重写任务逻辑」。
+纯脚本满足不了这条，ROS 2 路线专门为它而设。
+
+### 结构
+
+```
+Jetson                                          机械臂里的树莓派
+┌─────────────────────────────────┐             ┌──────────────────────────────┐
+│ ros_node.py（与仿真同一份）       │             │ arm_server.py                │
+│   ↓ FollowJointTrajectory 动作   │   TCP/JSON  │   ↓ 原样调用 arm_common.py    │
+│ real_driver.py（本包）  ─────────┼────────────►│   ↓ MechArm270 类、自定限位   │
+│   ↑ /joint_states 10Hz           │   :9001     │   ↓ 串口 /dev/ttyAMA0        │
+└─────────────────────────────────┘             └──────────────────────────────┘
+```
+
+仿真里任务节点对着 ros2_control 的两个动作服务器和 /joint_states 说话；真机上 real_driver 提供**一模一样**的
+三个接口，任务节点察觉不到区别。串口那一层不重写，直接复用 arm_common.py 里已经在真机上跑通的代码。
+
+### 第 1 步：臂内起服务
+
+登录机械臂后：
+
+```
+python3 /home/er/arm_server.py
+```
+
+看到 `监听 0.0.0.0:9001` 就行，这个终端别关。它负责把 Jetson 发来的指令转给舵机。
+
+### 第 2 步：Jetson 编译
+
+把 `ros2/mecharm_real` 拷进和仿真包同一个工作区（任务节点在仿真包里）：
+
+```
+cp -r 02-real-robot/ros2/mecharm_real ~/Desktop/exp2_sim_ws/src/
+cd ~/Desktop/exp2_sim_ws && source /opt/ros/humble/setup.bash && source ~/mecharm_ws/install/setup.bash && colcon build --symlink-install
+source install/setup.bash
+```
+
+Jetson 要能连到臂内服务：把臂的网线接到 Jetson 网口（`arm-share` 共享模式下臂是 `10.42.0.89`），
+或改 `config/real.yaml` 的 `arm_host`。
+
+### 第 3 步：示教 A、B 点
+
+```
+ros2 run mecharm_real teach a      # 张开夹爪 -> 变软 -> 手把臂摆到套住目标物 -> 回车记录 -> 恢复力矩
+ros2 run mecharm_real teach b      # 同上，摆到放置位置
+ros2 run mecharm_real teach show   # 看两个点及其换算出的坐标、工具轴倾角、工作半径
+ros2 run mecharm_real teach apply  # 写进 real.yaml 的 point_a / point_b
+```
+
+⚠️ 变软那一步 J1-J5 会失去力矩往下坠，回车前先用手扶住机械臂。
+
+换算用的是和任务节点完全一样的正运动学，所以任务节点重新逆解会解回你摆的姿势。
+`show` 若提示工具轴倾角超过 15°，说明摆的姿势不够竖直，任务节点的逆解可能不认，重新摆得竖直些。
+
+### 第 4 步：跑
+
+先单次低速：
+
+```
+ros2 launch mecharm_real real.launch.py cycles:=1
+```
+
+没问题再跑 5 次：
+
+```
+ros2 launch mecharm_real real.launch.py
+```
+
+结果在 `~/grasp_logs_real/`，格式和仿真完全一样（results.csv / summary.txt / trajectory.csv / errors.log）。
+真机没有物体位姿真值，每次全部步骤走完即计成功，落点由现场人工核对并记录。
+
+软件急停（另开终端，硬件急停优先）：
+
+```
+ros2 topic pub --once /soft_stop std_msgs/msg/Bool "data: true"
+```
+
+### 没有臂也能联调
+
+`arm_server.py --fake` 会起一个假臂（角度按速度线性逼近），Jetson 上照常跑 launch，用来验证整条 ROS 链路。
+
+### 和验收条款的对应
+
+| 条款 | 怎么满足 |
+|---|---|
+| 相同的 ROS 2 控制接口 | real_driver 提供与 ros2_control 同名同类型的两个动作服务器和 /joint_states |
+| 只改设备、通信、位置参数，不重写任务逻辑 | 任务节点 ros_node.py 原样复用；改动全在 real.yaml |
+| 初次低速 | `max_speed: 20`，速度按「角度/时长」换算再封顶 |
+| 失败 / 不可达 / 通信异常时停止或回安全位 | 逆解失败拒绝启动；到位残差超 3° 或通信异常判失败并回零；/soft_stop 急停 |
+| 保存轨迹、结果、错误日志 | 与仿真同一套日志代码 |
+
+## 五、armtest2.py 的九个命令
 
 ```
 python3 /home/er/armtest2.py <命令>
@@ -248,7 +361,7 @@ python3 /home/er/armtest2.py <命令>
 
 ---
 
-## 五、两条铁规矩
+## 六、两条铁规矩
 
 1. **必须用 `MechArm270` 类，pymycobot 版本 3.6.3。**
    老的 `MyCobot` 类发出的运动帧会被当前固件静默丢弃——指令看起来发出去了，机械臂却一动不动，
@@ -260,7 +373,7 @@ python3 /home/er/armtest2.py <命令>
 
 ---
 
-## 六、出问题了怎么办
+## 七、出问题了怎么办
 
 | 现象 | 原因和解决办法 |
 |---|---|

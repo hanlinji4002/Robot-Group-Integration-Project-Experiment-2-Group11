@@ -1,0 +1,50 @@
+# 真机（Jetson + mechArm 270）定点抓取参数。
+# 任务节点与仿真共用同一个 ros_node.py，验收要求：切真机只改设备、通信和位置参数。
+grasp_task:
+  ros__parameters:
+    use_sim_time: false
+
+    # 真机以机械臂底座为原点（URDF 基座系）
+    base_pose_xyz: [0.0, 0.0, 0.0]
+
+    # 取物点 A / 放置点 B（基座系，m）。不要手填：
+    # 先 ros2 run mecharm_real teach a / b 示教，再 teach apply 自动换算写入。
+    # 下面两行是占位值（与仿真同一布局），只是让未示教前也能干跑。
+    point_a: [0.12, 0.08, 0.0135]
+    point_b: [0.12, -0.08, 0.0135]
+
+    # 安全高度（m）
+    safe_height: 0.05
+
+    # 工具中心偏移：与仿真同值。示教点也用同一套正运动学换算，两边自洽。
+    tool_tip_offset: 0.063
+
+    # 夹爪开/合（rad）：任务节点发这个角，驱动按离谁近映射成 开/合 两态
+    gripper_open: 0.0
+    gripper_close: -0.44
+
+    # 真机放慢：单段轨迹 4s、夹爪 2s（配合驱动 max_speed 低速模式）
+    move_duration: 4.0
+    grip_duration: 2.0
+
+    cycles: 5
+    log_dir: "~/grasp_logs_real"
+
+    # 真机关键开关：不用 Gazebo 真值，吸附逻辑停用，落点由现场人工核对
+    sim_attach: false
+    sim_check: false
+    world_name: "none"
+
+mecharm_real_driver:
+  ros__parameters:
+    # 臂内 arm_server.py 的地址：Jetson 网口共享给臂时臂是 10.42.0.89
+    arm_host: "10.42.0.89"
+    arm_port: 9001
+    max_speed: 20          # 初次运行低速；验收稳定后可放宽
+    state_rate: 10.0
+    goal_tol_deg: 3.0      # 到位残差超过它判为失败
+    # 首次联机若某关节方向与仿真相反，把对应 sign 改成 -1（目前验证一致，保持 1）
+    joint_signs: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    joint_offsets_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    gripper_open_rad: 0.0
+    gripper_close_rad: -0.44
