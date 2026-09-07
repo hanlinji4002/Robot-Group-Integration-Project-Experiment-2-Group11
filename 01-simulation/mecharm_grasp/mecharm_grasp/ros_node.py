@@ -174,6 +174,9 @@ class GraspTask(Node):
             ('sim_attach', True), ('sim_check', True),
             # 往返模式：奇数轮 A→B、偶数轮 B→A，物体不用人工放回；仿真默认关
             ('alternate_direction', False),
+            # 示教回放（真机）：直接回放示教关节角，不做逆解；上方点 = J2 回收 lift_deg
+            ('use_taught_joints', False), ('at_a_joints_deg', [0.0] * 6),
+            ('at_b_joints_deg', [0.0] * 6), ('lift_deg', 25.0),
         ]:
             self.declare_parameter(name, default)
         g = lambda n: self.get_parameter(n).value
@@ -190,6 +193,9 @@ class GraspTask(Node):
         # 仿真里用 Gazebo 位姿真值做成功判定与轮间复位；真机置 false
         self.sim_check = bool(g('sim_check'))
         self.alternate = bool(g('alternate_direction'))
+        self.use_taught = bool(g('use_taught_joints'))
+        self.at_a_deg, self.at_b_deg = list(g('at_a_joints_deg')), list(g('at_b_joints_deg'))
+        self.lift_deg = float(g('lift_deg'))
         self.log_dir = os.path.expanduser(g('log_dir'))
         os.makedirs(self.log_dir, exist_ok=True)
 
@@ -336,8 +342,33 @@ class GraspTask(Node):
         return None
 
     # ---------- 主任务 ----------
+    def _plan_from_taught(self):
+        """示教回放模式：pick/place 直接用示教关节角，上方点 = J2 回收 lift_deg，不做逆解。
+        仍做关节限位检查；超限 → 任务拒绝启动。"""
+        wp = {}
+        for key, degs in (('a', self.at_a_deg), ('b', self.at_b_deg)):
+            if len(degs) != 6:
+                self.fail(f'示教点 {key.upper()} 需要 6 个关节角，实际 {degs}')
+                return None
+            q = np.radians(np.array(degs, dtype=float))
+            up = q.copy()
+            up[1] -= math.radians(self.lift_deg)
+            for name, qq in ((f'pick_{key}', q), (f'place_{key}', q), (f'above_{key}', up)):
+                for j, (lo, hi) in enumerate(JOINT_LIMITS):
+                    if not (lo - 1e-6 <= qq[j] <= hi + 1e-6):
+                        self.fail(f'示教点 {name} 关节 {ARM_JOINTS[j]} {math.degrees(qq[j]):.1f}° 超限，任务停止')
+                        return None
+                wp[name] = qq
+            p, _ = tip_pos(q, self.tool_off)
+            self.status(f'示教点 {key.upper()} 关节角 {degs} → 工具中心 {np.round(p, 4).tolist()}')
+        wp['home'] = np.zeros(6)
+        return wp
+
     def plan_waypoints(self):
-        """启动时对全部路径点求逆解；任一点无解 → 不可达，任务拒绝启动。"""
+        """启动时对全部路径点求逆解；任一点无解 → 不可达，任务拒绝启动。
+        use_taught_joints=true 时改为直接回放示教关节角。"""
+        if self.use_taught:
+            return self._plan_from_taught()
         a_local = self.point_a - self.base
         b_local = self.point_b - self.base
         wp = {}

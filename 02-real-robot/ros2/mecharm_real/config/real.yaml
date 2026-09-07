@@ -13,6 +13,13 @@ grasp_task:
     point_a: [0.12, 0.08, 0.0135]
     point_b: [0.12, -0.08, 0.0135]
 
+    # 示教回放（真机默认走这条）：直接回放示教关节角，不做逆解，不受"工具轴要竖直"的限制。
+    # 由 teach apply 自动填写并打开；改成 false 则退回用 point_a/point_b 逆解
+    use_taught_joints: false
+    at_a_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    at_b_joints_deg: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    lift_deg: 25.0          # 上方点 = 示教点的 J2 往回收这么多度（垂直抬起）
+
     # 安全高度（m）
     safe_height: 0.05
 

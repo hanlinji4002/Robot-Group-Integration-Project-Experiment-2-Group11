@@ -141,14 +141,21 @@ def main():
     if args.what == 'show':
         return
     if fa or fb:
-        if input('存在告警，仍要写入 real.yaml 吗？ [y/N] ').strip().lower() != 'y':
-            print('未写入'); return
-    new = re.sub(r'^(\s*point_a:\s*)\[.*\]', lambda m: m.group(1) + str(pa), ytext, count=1, flags=re.M)
-    new = re.sub(r'^(\s*point_b:\s*)\[.*\]', lambda m: m.group(1) + str(pb), new, count=1, flags=re.M)
-    if new == ytext:
-        sys.exit('real.yaml 里没找到 point_a / point_b 行，未修改')
+        print('（以上告警只影响逆解模式；默认的示教回放模式直接回放关节角，不受影响）')
+    def set_line(text, key, value):
+        pat = r'^(\s*%s:\s*).*$' % re.escape(key)
+        if not re.search(pat, text, re.M):
+            sys.exit('real.yaml 里没找到 %s 行，未修改' % key)
+        return re.sub(pat, lambda m: m.group(1) + value, text, count=1, flags=re.M)
+    new = set_line(ytext, 'point_a', str(pa))
+    new = set_line(new, 'point_b', str(pb))
+    new = set_line(new, 'use_taught_joints', 'true')
+    new = set_line(new, 'at_a_joints_deg', str([round(float(v), 2) for v in pts['at_a']]))
+    new = set_line(new, 'at_b_joints_deg', str([round(float(v), 2) for v in pts['at_b']]))
     open(args.yaml, 'w', encoding='utf-8').write(new)
-    print('\n已写入 %s\n  point_a: %s\n  point_b: %s' % (args.yaml, pa, pb))
+    print('\n已写入 %s（示教回放模式已打开）' % args.yaml)
+    print('  at_a_joints_deg: %s\n  at_b_joints_deg: %s' % (pts['at_a'], pts['at_b']))
+    print('  point_a: %s\n  point_b: %s  （仅供参考/逆解模式用）' % (pa, pb))
     print('>>> 下一步: ros2 launch mecharm_real real.launch.py cycles:=1')
 
 
